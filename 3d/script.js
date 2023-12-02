@@ -118,6 +118,8 @@ class Shape {
             j_hat = rotated_basis_vector(theta - half_pi, phi + Math.PI),
             k_hat = rotated_basis_vector(theta, phi);
 
+        console.log(i_hat, j_hat, k_hat);
+
         const new_points = [];
         const point_count = this.points.length;
         for (let i = 0; i < point_count; i++) {
@@ -226,12 +228,12 @@ function main() {
     );
     cube.draw_lines();
     
-    let half_pi = Math.PI * 0.3;
+    let half_pi = Math.PI * 0.5;
     let phi = 0;
     const interval = setInterval(() => {
-        if (phi > 10) {
-            clearInterval(interval);
-        }
+        // if (phi > 10) {
+        //     clearInterval(interval);
+        // }
 
         //          theta, phi
         cube.rotate_and_draw(half_pi, phi);
