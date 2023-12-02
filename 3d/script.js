@@ -110,7 +110,7 @@ class Shape {
         }
     }
 
-    display_rotated(theta, phi) {
+    rotate_and_draw(theta, phi) {
 
         let half_pi = Math.PI * 0.5;
         // angle translation details in google docs
@@ -118,16 +118,72 @@ class Shape {
             j_hat = rotated_basis_vector(theta - half_pi, phi + Math.PI),
             k_hat = rotated_basis_vector(theta, phi);
 
-        console.log(i_hat, j_hat, k_hat);
-
-        // console.log(i_hat, j_hat);
+        const new_points = [];
         const point_count = this.points.length;
         for (let i = 0; i < point_count; i++) {
             let new_point = linear_combination3d(this.points[i], i_hat, j_hat, k_hat);
-            this.points[i].x = new_point.x;
-            this.points[i].y = new_point.y;
-            this.points[i].z = new_point.z;
+            new_points.push([new_point.x, new_point.y, new_point.z]);
         }
+
+        const new_coords = new Cube_coords(new_points);
+
+        let tmp_reference = this.lines; // store reference so it's not lost
+        this.lines = new_coords.lines;
+
+        clearCanvas(this.canvas);
+        this.draw_lines();
+
+        this.liens = tmp_reference; // reassign
+    }
+}
+
+class Cube_coords {
+    /**
+     * @param {Array[Array[Number]]} _points 
+     *      they have to be be in this EXACT order of corners given
+     *      (not necessarily 100 or -100 tho)
+     * 
+     *      [-100, -100, -100], // back bottom left
+            [100, -100, -100], // back bottom right
+            [100, 100, -100], // back top right
+            [-100, 100, -100], // back top left
+
+            [-100, -100, 100], // front bottom left
+            [100, -100, 100], // front bottom right
+            [100, 100, 100], // front top right
+            [-100, 100, 100] // front top left
+     */
+    constructor(_points) {
+        let s_points = [];
+        const point_count = _points.length;
+        for (let i = 0; i < point_count; i++) {
+            s_points.push(
+                new Vector(
+                    _points[i][0], // x
+                    _points[i][1], // y
+                    _points[i][2]  // z
+                )
+            );
+        }
+        this.points = s_points;
+        // configuration of edges
+        this.lines = [
+            // back side 
+            s_points[0], s_points[1],
+            s_points[1], s_points[2],
+            s_points[2], s_points[3],
+            s_points[3], s_points[0],
+            // front side
+            s_points[4], s_points[5],
+            s_points[5], s_points[6],
+            s_points[6], s_points[7],
+            s_points[7], s_points[4],
+            // lines connecting them
+            s_points[0], s_points[4],
+            s_points[1], s_points[5],
+            s_points[2], s_points[6],
+            s_points[3], s_points[7]
+        ];
     }
 }
 
@@ -159,66 +215,30 @@ function main() {
         [100, 100, 100], // front top right
         [-100, 100, 100] // front top left
     ];
-    let s_points = [];
-    const point_count = template_points.length;
-    for (let i = 0; i < point_count; i++) {
-        s_points.push(
-            new Vector(
-                template_points[i][0], // x
-                template_points[i][1], // y
-                template_points[i][2]  // z
-            )
-        );
-    }
-    let s_lines = [
-        // back side 
-        s_points[0], s_points[1],
-        s_points[1], s_points[2],
-        s_points[2], s_points[3],
-        s_points[3], s_points[0],
-        // front side
-        s_points[4], s_points[5],
-        s_points[5], s_points[6],
-        s_points[6], s_points[7],
-        s_points[7], s_points[4],
-        // lines connecting them
-        s_points[0], s_points[4],
-        s_points[1], s_points[5],
-        s_points[2], s_points[6],
-        s_points[3], s_points[7]
-    ];
+    const cube_coords = new Cube_coords(template_points);
 
     const cube = new Shape(
         canvas_elem,
-        s_points, 
-        s_lines,
+        cube_coords.points, 
+        cube_coords.lines,
         true // dont_hardcopy. here this is used so references in s_lines can be used.
              // as in, so we only need to change values of s_points and s_lines values point to them
     );
     cube.draw_lines();
-
-    // cube.rotate(2,2);
-    // context.clearRect(0, 0, canvas_elem.width, canvas_elem.height);
-    // cube.draw_lines();
     
-    let half_pi = Math.PI * 0.5;
+    let half_pi = Math.PI * 0.3;
     let phi = 0;
-    let change = 0.017;
     const interval = setInterval(() => {
-        if (phi > 0.3) {
+        if (phi > 10) {
             clearInterval(interval);
         }
 
-        cube.rotate(0, phi);
-        context.clearRect(0, 0, canvas_elem.width, canvas_elem.height);
-        cube.draw_lines();
+        //          theta, phi
+        cube.rotate_and_draw(half_pi, phi);
 
         // console.log(theta / 3.14 * 180, theta);
-        phi += change;
-        // if (change > 0.001) {
-        //     change -= 0.001;
-        // }
-    }, 200);
+        phi += 0.017;
+    }, 50);
 
 }
 
@@ -232,6 +252,13 @@ main();
  * @param {Number} phi  // radians, angle vector makes with [0, 0, 1]
  */
 function rotated_basis_vector(theta, phi) {
+    // let sin_theta = Math.sin(theta),
+    //     cos_phi = Math.cos(phi);
+    // return new Vector(
+    //     sin_theta * Math.sin(phi),
+    //     cos_phi,
+    //     sin_theta * cos_phi
+    // )
     if (close_equals(theta, 0)) {
         return new Vector(0, 1, 0);
     } 
@@ -268,4 +295,8 @@ function linear_combination3d(vector, i_hat, j_hat, k_hat) {
 
 function close_equals(a, b) {
     return Math.abs(a - b) < 0.0001; // 1 is hardcoded tolerance error
+}
+
+function clearCanvas(canvas) {
+    canvas.getContext("2d").clearRect(0, 0, this.canvas.width, this.canvas.height);
 }
