@@ -21,7 +21,7 @@ class Vector {
 
 class Shape {
     /**
-     * @param {HTMLCanvasElement} canvas canvas element object returned by querySelector
+     * @param {Object} canvas canvas element object returned by querySelector
      * 
      * arrays are hardcopied unless param below
      * @param {Array[Vector]} points array of Vectors [[x1, y1], [x2, y2], ...]
@@ -52,6 +52,9 @@ class Shape {
             this.lines = JSON.parse(JSON.stringify(lines));
         }
 
+        // console.log(this.points);
+        // console.log(this.lines);
+
     }
 
     draw_points() {
@@ -75,6 +78,7 @@ class Shape {
         const line_count = this.lines.length;
         const ctx = this.canvas.getContext("2d");
         for (let i = 0; i < line_count; i += 2) {
+            // console.log(this.lines[i]);
             ctx.beginPath();
             ctx.moveTo(
                 Math.round(this.translate_coord(this.lines[i].x,true)), 
@@ -118,18 +122,24 @@ class Shape {
     rotate_and_draw(theta) {
         // we need to somehow preserve original graph and line connections
 
-        const new_points = [];
+        let new_points = [];
         let i_hat = rotated_basis_vector(theta),
             j_hat = rotated_basis_vector(theta + Math.PI * 0.5);
         // console.log(i_hat, j_hat);
+
         const point_count = this.points.length;
         for (let i = 0; i < point_count; i++) {
-            new_points.push(linear_combination2d(this.points[i], i_hat, j_hat));
+            let new_point = linear_combination2d(this.points[i], i_hat, j_hat);
+            
+            new_points.push([new_point.x, new_point.y]);
         }
-        const new_coords = new Square_coords(new_points);
 
-        let tmp_reference = this.lines; // remember ptr to original lines
-        this.lines = new_points; // this.lines will point to transformed lines here.
+        const new_coords = new Square_coords(new_points); // constructor expects 2d array not array of vectors
+        // console.log(new_coords.lines);
+
+        let tmp_reference = this.lines; // remember ptr to original lines VERY IMPORTANT
+        this.lines = new_coords.lines; // this.lines will point to transformed lines here.
+        // console.log(this.lines);
 
         this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.draw_lines();
@@ -139,17 +149,26 @@ class Shape {
 }
 
 class Square_coords {
+    /**
+     * 
+     * @param {Array[Array[Number]]} _points 
+     *      [[x1, y1], [x2, y2], ...] consecutive pairs of x and y will be connected with lines
+     *      ex. [x1, y1] and [x2, y2] are connected. [x2, y2] and [x3, y3] are connected.
+     */
     constructor(_points) {
-        this.points = [];
+        let points_arr = [];
         const point_count = _points.length;
         for (let i = 0; i < point_count; i++) {
-            this.points.push(new Vector(_points[i][0], _points[i][1]));
+            // _points[i][0] and [1] are primitives, passed by value
+            points_arr.push(new Vector(_points[i][0], _points[i][1])); 
         }
+        this.points = points_arr;
+        // hardcoded configuration of lines
         this.lines = [
-            this.points[0], this.points[1],
-            this.points[1], this.points[2],
-            this.points[2], this.points[3],
-            this.points[3], this.points[0]
+            points_arr[0], points_arr[1],
+            points_arr[1], points_arr[2],
+            points_arr[2], points_arr[3],
+            points_arr[3], points_arr[0]
         ];
     }
 }
@@ -180,21 +199,17 @@ function main() {
     );
     square.draw_lines();
 
-    // square.rotate(Math.PI);
-    // // context.clearRect(0, 0, canvas_elem.width, canvas_elem.height);
-    // square.draw_lines();
-
     let theta = 0;
     const interval = setInterval(() => {
-        if (theta > 3) {
+        if (theta > 7) {
             clearInterval(interval);
         }
 
         square.rotate_and_draw(theta);
 
         console.log(theta / 3.14 * 180, theta);
-        theta += 0.017;
-    }, 100);
+        theta += 0.01;
+    }, 50);
 
 }
 
