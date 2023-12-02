@@ -227,20 +227,21 @@ function main() {
              // as in, so we only need to change values of s_points and s_lines values point to them
     );
     cube.draw_lines();
+
+    cube.rotate_and_draw(Math.PI * 0.75, Math.PI * 0.25);
     
-    let half_pi = Math.PI * 0.5;
-    let phi = 0;
-    const interval = setInterval(() => {
-        // if (phi > 10) {
-        //     clearInterval(interval);
-        // }
+    // let half_pi = 1;
+    // let phi = 0;
+    // const interval = setInterval(() => {
+    //     if (phi > 7) {
+    //         clearInterval(interval);
+    //     }
 
-        //          theta, phi
-        cube.rotate_and_draw(half_pi, phi);
+    //     //                      theta, phi
+    //     cube.rotate_and_draw(half_pi, phi);
 
-        // console.log(theta / 3.14 * 180, theta);
-        phi += 0.017;
-    }, 50);
+    //     phi += 0.03;
+    // }, 50);
 
 }
 
@@ -268,12 +269,11 @@ function rotated_basis_vector(theta, phi) {
         return new Vector(0, -1, 0);
     }
     else {
-        let sin_theta = Math.sin(theta),
-            cos_phi = Math.cos(phi);
+        let sin_theta = Math.sin(theta);
         return new Vector(
             sin_theta * Math.sin(phi),
-            cos_phi,
-            sin_theta * cos_phi
+            Math.cos(theta),
+            sin_theta * Math.cos(phi)
         )
     }
 }
@@ -296,7 +296,7 @@ function linear_combination3d(vector, i_hat, j_hat, k_hat) {
 }
 
 function close_equals(a, b) {
-    return Math.abs(a - b) < 0.0001; // 1 is hardcoded tolerance error
+    return Math.abs(a - b) < 0.001; // hardcoded tolerance error
 }
 
 function clearCanvas(canvas) {
