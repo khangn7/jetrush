@@ -104,25 +104,60 @@ class Shape {
 
     // /**
     //  * reassigns all points with values from function passed as argument
-    //  * @param {Function} _function a function that should expect [x, y] (reference) and return [new_x, new_y]
-    //  *      _function([Number Number]) returns [Number, Number]
+    //  * @param {Function(Vector) -> Vector} _function
     //  */
     // change_all_points(_function) {
     //     const point_count = this.points.length;
     //     for (let i = 0; i < point_count; i++) {
-    //         let new_points = _function(this.points[i]);
-    //         // reassign this.points[i]
-    //         this.points[i][0] = new_points[0];
-    //         this.points[i][0] = new_points[1];
+    //         let new_point = _function(this.points[i]);
+    //         this.points[i].x = new_point.x;
+    //         this.points[i].y = new_point.y;
     //     }
     // }
+
+    rotate_and_draw(theta) {
+        // we need to somehow preserve original graph and line connections
+
+        const new_points = [];
+        let i_hat = rotated_basis_vector(theta),
+            j_hat = rotated_basis_vector(theta + Math.PI * 0.5);
+        // console.log(i_hat, j_hat);
+        const point_count = this.points.length;
+        for (let i = 0; i < point_count; i++) {
+            new_points.push(linear_combination2d(this.points[i], i_hat, j_hat));
+        }
+        const new_coords = new Square_coords(new_points);
+
+        let tmp_reference = this.lines; // remember ptr to original lines
+        this.lines = new_points; // this.lines will point to transformed lines here.
+
+        this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.draw_lines();
+
+        this.lines = tmp_reference; // reassign after drawing done
+    }
+}
+
+class Square_coords {
+    constructor(_points) {
+        this.points = [];
+        const point_count = _points.length;
+        for (let i = 0; i < point_count; i++) {
+            this.points.push(new Vector(_points[i][0], _points[i][1]));
+        }
+        this.lines = [
+            this.points[0], this.points[1],
+            this.points[1], this.points[2],
+            this.points[2], this.points[3],
+            this.points[3], this.points[0]
+        ];
+    }
 }
 
 function main() {
     const canvas_elem = document.querySelector("#canvas");
     canvas_elem.width = window.innerWidth * 0.99; // 0.99 is to fit screen
     canvas_elem.height = window.innerHeight * 0.99;
-    
     // have to be odd numbers, explained above
     if (canvas_elem.width % 2 == 0) {
         canvas_elem.width--;
@@ -131,104 +166,35 @@ function main() {
         canvas_elem.height--;
     }
 
+    const context = canvas.getContext("2d");
 
-    let template_points = [[0,0], [100, 0]];
-    let s_points = [];
-    const point_count = template_points.length;
-    for (let i = 0; i < point_count; i++) {
-        s_points.push(new Vector(template_points[i][0], template_points[i][1]));
-    }
-    let s_lines = [
-        s_points[0], s_points[1]
-    ];
-    
-    const arrow = new Shape(
-        canvas_elem, 
-        s_points,
-        s_lines,
-        true
-    )
-    
-    let theta = 0;
-    let i_hat;
-    const interval = setInterval(
-        () => {
-            if (theta > 3) {
-                clearInterval(interval);
-            }
+    let template_points = [[-100, -100], [-100, 100], [100, 100], [100, -100]];
+    const square_coords = new Square_coords(template_points);
 
-            i_hat = rotated_basis_vector(theta);
-
-            for (let i = 0; i < point_count; i++) {
-                let point = s_points[i]; // Vector(i-hat scalar, j-hat scalar)
-                // linear combination
-                let new_x = point.x * i_hat.x + point.y * j_hat.x;
-                let new_y = point.x * i_hat.y + point.y * j_hat.y;
-    
-                point.x = new_x;
-                point.y = new_y;
-            }
-
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            square.draw_lines();
-
-            theta += 0.017;
-        },
-        100
+    const square = new Shape(
+        canvas_elem,
+        square_coords.points, 
+        square_coords.lines,
+        true // dont_hardcopy. here this is used so references in square_coords.lines can be used.
+             // as in, so we only need to change values of .points and .lines values point to them
     );
+    square.draw_lines();
 
-    // let template_points = [[-100, -100], [-100, 100], [100, 100], [100, -100]];
-    // let s_points = [];
-    // const point_count = template_points.length;
-    // for (let i = 0; i < point_count; i++) {
-    //     s_points.push(new Vector(template_points[i][0], template_points[i][1]));
-    // }
-    // let s_lines = [
-    //     s_points[0], s_points[1],
-    //     s_points[1], s_points[2],
-    //     s_points[2], s_points[3],
-    //     s_points[3], s_points[0]
-    // ];
-
-    // const square = new Shape(
-    //     canvas_elem,
-    //     s_points, 
-    //     s_lines,
-    //     true // dont_hardcopy. here this is used so references in s_lines can be used.
-    //          // as in, so we only need to change values of s_points and s_lines values point to them
-    // );
+    // square.rotate(Math.PI);
+    // // context.clearRect(0, 0, canvas_elem.width, canvas_elem.height);
     // square.draw_lines();
 
-    // let i_hat;
-    // let j_hat;
-    // const half_pi = 0.5 * Math.PI;
-    // let theta = 0;
-    // let context = canvas.getContext("2d");
-    // const interval = setInterval(() => {
-    //     if (theta > 6.3) {
-    //         clearInterval(interval);
-    //     }
+    let theta = 0;
+    const interval = setInterval(() => {
+        if (theta > 3) {
+            clearInterval(interval);
+        }
 
-    //     i_hat = rotated_basis_vector(theta);
-    //     j_hat = rotated_basis_vector(theta + half_pi);
-    //     console.log(theta);
+        square.rotate_and_draw(theta);
 
-    //     for (let i = 0; i < point_count; i++) {
-
-    //         let point = s_points[i]; // Vector(i-hat scalar, j-hat scalar)
-    //         // linear combination
-    //         let new_x = point.x * i_hat.x + point.y * j_hat.x;
-    //         let new_y = point.x * i_hat.y + point.y * j_hat.y;
-
-    //         point.x = new_x;
-    //         point.y = new_y;
-    //     }
-    //     context.clearRect(0, 0, canvas.width, canvas.height);
-
-    //     square.draw_lines();
-
-    //     theta += 0.017 // roughly 1 degrees in radians
-    // }, 200);
+        console.log(theta / 3.14 * 180, theta);
+        theta += 0.017;
+    }, 100);
 
 }
 
@@ -241,4 +207,18 @@ main();
  */
 function rotated_basis_vector(theta) {
     return new Vector(Math.cos(theta), Math.sin(theta));
+}
+
+/**
+ * 
+ * @param {Vector} vector [x, y]
+ * @param {Vector} i_hat basis vector x scales
+ * @param {Vector} j_hat basis vector y scales
+ * @returns 
+ */
+function linear_combination2d(vector, i_hat, j_hat) {
+    return new Vector(
+        vector.x * i_hat.x + vector.y * j_hat.x,
+        vector.x * i_hat.y + vector.y * j_hat.y
+    );
 }
