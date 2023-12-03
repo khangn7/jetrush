@@ -112,13 +112,16 @@ class Shape {
 
     rotate_and_draw(theta, phi) {
 
-        let half_pi = Math.PI * 0.5;
-        // angle translation details in google docs
-        let i_hat = rotated_basis_vector(half_pi, phi + half_pi),
-            j_hat = rotated_basis_vector(theta - half_pi, phi + Math.PI),
+        const half_pi = Math.PI * 0.5;
+        
+        // angle translation
+        let translated_angles = translate_angles(theta, phi);
+        let i_hat = rotated_basis_vector(translated_angles[0][0], translated_angles[0][1]);
+
+        let j_hat = rotated_basis_vector(translated_angles[1][0], translated_angles[1][1]),
             k_hat = rotated_basis_vector(theta, phi);
 
-        console.log(i_hat, j_hat, k_hat);
+        // console.log(i_hat, j_hat, k_hat);
 
         const new_points = [];
         const point_count = this.points.length;
@@ -228,54 +231,87 @@ function main() {
     );
     cube.draw_lines();
 
-    cube.rotate_and_draw(Math.PI * 0.75, Math.PI * 0.25);
+    cube.rotate_and_draw(1, 1);
     
-    // let half_pi = 1;
-    // let phi = 0;
+    // let pi = Math.PI,
+    //     half_pi = pi * 0.5,
+    //     two_pi = pi * 2;
+    // let phi = 1,
+    //     phi_change = 0.03;
+    // let theta = 4,
+    //     theta_change = 0.03;
     // const interval = setInterval(() => {
     //     if (phi > 7) {
     //         clearInterval(interval);
     //     }
 
-    //     //                      theta, phi
-    //     cube.rotate_and_draw(half_pi, phi);
+    //     //                   theta, phi
+    //     cube.rotate_and_draw(theta, phi);
 
-    //     phi += 0.03;
+    //     phi += phi_change;
+    //     theta += theta_change;
+    //     if (phi > two_pi) {
+    //         phi -= two_pi;
+    //     }
+    //     // if (phi > half_pi) {
+    //     //     theta += theta_change;
+    //     // } else {
+    //     //     theta -= theta_change;
+    //     // }
+
     // }, 50);
-
 }
 
 main();
 
-
 /**
  * notation: [x, y, z], where z faces "out" of the screen towards the viewer
- * rotates basis vector of [0, 0, 1]. details in google docs
+ * rotates basis vector of [0, 0, 1]. details in google doc
  * @param {Number} theta // radians, angle vector makes with [0, 1, 0]
  * @param {Number} phi  // radians, angle vector makes with [0, 0, 1]
  */
 function rotated_basis_vector(theta, phi) {
-    // let sin_theta = Math.sin(theta),
-    //     cos_phi = Math.cos(phi);
-    // return new Vector(
-    //     sin_theta * Math.sin(phi),
-    //     cos_phi,
-    //     sin_theta * cos_phi
-    // )
-    if (close_equals(theta, 0)) {
-        return new Vector(0, 1, 0);
-    } 
-    else if (close_equals(theta, Math.PI)) {
-        return new Vector(0, -1, 0);
+    theta = theta % Math.PI;
+    phi = phi % Math.PI;
+
+    let sin_theta = Math.sin(theta);
+    return new Vector(
+        sin_theta * Math.sin(phi),
+        Math.cos(theta),
+        sin_theta * Math.cos(phi)
+    )
+}
+
+/**
+ * returns angles for i-hat and j-hat given angle for k-hat as defined in google doc
+ * @param {Number} k_theta 
+ * @param {Number} k_phi 
+ * @returns {} 
+ */
+function translate_angles(k_theta, k_phi) {
+
+    const half_pi = Math.PI * 0.5;
+    const two_pi = Math.PI * 2;
+
+    let j_theta = k_theta - half_pi;
+    let j_phi;
+    let j_test = Math.floor(j_theta / two_pi);
+    if (j_test % 2 == Math.floor(k_phi / two_pi) % 2) {
+        j_phi = k_phi;
+    } else {
+        j_phi = k_phi + Math.PI;
     }
-    else {
-        let sin_theta = Math.sin(theta);
-        return new Vector(
-            sin_theta * Math.sin(phi),
-            Math.cos(theta),
-            sin_theta * Math.cos(phi)
-        )
-    }
+
+    return [[half_pi, k_phi + half_pi], [j_theta, j_phi]];
+    // return {
+    //     "i": {
+    //         theta: half_pi, 
+    //         phi: k_phi + half_pi},
+    //     "j": {
+    //         theta: j_theta, 
+    //         phi: j_phi
+    //     }
+    // };
 }
 
 /**
@@ -296,7 +332,7 @@ function linear_combination3d(vector, i_hat, j_hat, k_hat) {
 }
 
 function close_equals(a, b) {
-    return Math.abs(a - b) < 0.001; // hardcoded tolerance error
+    return Math.abs(a - b) < 0.00001; // hardcoded tolerance error
 }
 
 function clearCanvas(canvas) {
