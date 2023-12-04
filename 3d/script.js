@@ -13,19 +13,12 @@ note that this doesn't take perspective into account
 
 */
 
-class Vector {
-    /**
-     * // don't preemptively translate to center of canvas. just act as if (0, 0) is center
-     * @param {Number} x 
-     * @param {Number} y 
-     * @param {Number} z
-     */
-    constructor(x, y, z) {
-        this.x = x;
-        this.y = y;
-        this.z = z
-    }
-}
+import { 
+    Vector, 
+    // Cube_coords,
+    TriPyramid_coords,
+    Cube_coords
+} from "./coords.js";
 
 class Shape {
     /**
@@ -38,9 +31,11 @@ class Shape {
      *      // a line will be drawn between vector0 and vector1 using its x and y values.
      *      // another lines be drawn between vector2 and vector3, and so on.
      * 
+     * @param {Class} coord_class class used to make coords imported from coords.js
+     * 
      * @param {Boolean} dont_hardcopy  won't hardcopy points and lines args
      */
-    constructor (canvas, points, lines, dont_hardcopy=false) {
+    constructor (canvas, points, lines, coord_class, dont_hardcopy=true) {
 
         if (lines.length % 2 != 0) {
             throw "Shape 'lines' argument doesn't have even number of items";
@@ -51,6 +46,8 @@ class Shape {
         this.canvasHeight = canvas.clientHeight;
         this.canvas_halfWidth = Math.floor(canvas.clientWidth * 0.5);
         this.canvas_halfHeight = Math.floor(canvas.clientHeight * 0.5);
+
+        this.coord_class = coord_class;
 
         if (dont_hardcopy) {
             this.points = points;
@@ -130,7 +127,7 @@ class Shape {
             new_points.push([new_point.x, new_point.y, new_point.z]);
         }
 
-        const new_coords = new Cube_coords(new_points);
+        const new_coords = new this.coord_class(new_points);
 
         let tmp_reference = this.lines; // store reference so it's not lost
         this.lines = new_coords.lines;
@@ -142,55 +139,7 @@ class Shape {
     }
 }
 
-class Cube_coords {
-    /**
-     * @param {Array[Array[Number]]} _points 
-     *      they have to be be in this EXACT order of corners given
-     *      (not necessarily 100 or -100 tho)
-     * 
-     *      [-100, -100, -100], // back bottom left
-            [100, -100, -100], // back bottom right
-            [100, 100, -100], // back top right
-            [-100, 100, -100], // back top left
 
-            [-100, -100, 100], // front bottom left
-            [100, -100, 100], // front bottom right
-            [100, 100, 100], // front top right
-            [-100, 100, 100] // front top left
-     */
-    constructor(_points) {
-        let s_points = [];
-        const point_count = _points.length;
-        for (let i = 0; i < point_count; i++) {
-            s_points.push(
-                new Vector(
-                    _points[i][0], // x
-                    _points[i][1], // y
-                    _points[i][2]  // z
-                )
-            );
-        }
-        this.points = s_points;
-        // configuration of edges
-        this.lines = [
-            // back side 
-            s_points[0], s_points[1],
-            s_points[1], s_points[2],
-            s_points[2], s_points[3],
-            s_points[3], s_points[0],
-            // front side
-            s_points[4], s_points[5],
-            s_points[5], s_points[6],
-            s_points[6], s_points[7],
-            s_points[7], s_points[4],
-            // lines connecting them
-            s_points[0], s_points[4],
-            s_points[1], s_points[5],
-            s_points[2], s_points[6],
-            s_points[3], s_points[7]
-        ];
-    }
-}
 
 function main() {
 
@@ -206,8 +155,14 @@ function main() {
         canvas_elem.height--;
     }
 
-    const context = canvas.getContext("2d");
+    display_cube(canvas_elem);
 
+    // display_pyramid(canvas_elem);
+}
+
+main();
+
+function display_cube(canvas_elem) {
     let template_points = [
         // [x, y, z]
         [-100, -100, -100], // back bottom left
@@ -226,43 +181,64 @@ function main() {
         canvas_elem,
         cube_coords.points, 
         cube_coords.lines,
+        Cube_coords,
         true // dont_hardcopy. here this is used so references in s_lines can be used.
              // as in, so we only need to change values of s_points and s_lines values point to them
     );
     cube.draw_lines();
 
-    cube.rotate_and_draw(1, 1);
+    // cube.rotate_and_draw(1, 1);
     
-    // let pi = Math.PI,
-    //     half_pi = pi * 0.5,
-    //     two_pi = pi * 2;
-    // let phi = 1,
-    //     phi_change = 0.03;
-    // let theta = 4,
-    //     theta_change = 0.03;
-    // const interval = setInterval(() => {
-    //     if (phi > 7) {
-    //         clearInterval(interval);
-    //     }
+    let two_pi = Math.PI * 2;
+    let phi = 0,
+        phi_change = 0.03;
+    let theta = 4,
+        theta_change = 0.03;
+    const interval = setInterval(() => {
+        if (phi > 7) {
+            clearInterval(interval);
+        }
 
-    //     //                   theta, phi
-    //     cube.rotate_and_draw(theta, phi);
+        //                   theta, phi
+        cube.rotate_and_draw(theta, phi);
 
-    //     phi += phi_change;
-    //     theta += theta_change;
-    //     if (phi > two_pi) {
-    //         phi -= two_pi;
-    //     }
-    //     // if (phi > half_pi) {
-    //     //     theta += theta_change;
-    //     // } else {
-    //     //     theta -= theta_change;
-    //     // }
+        phi += phi_change;
+        theta += theta_change;
+        if (phi > two_pi) {
+            phi -= two_pi;
+        }
 
-    // }, 50);
+    }, 50);
 }
 
-main();
+function display_pyramid(canvas_elem) {
+    let template_points = [
+        // [x, y, z]
+        [0, 0, 100],
+        [87, 0, -50],
+        [-87, 0, -50],
+        [0, 100, 0]
+    ]
+    const coords = new TriPyramid_coords(template_points);
+    const pyramid = new Shape(
+        canvas_elem,
+        coords.points,
+        coords.lines,
+        TriPyramid_coords,
+        true
+    );
+    
+    let theta = 0, 
+        phi = 0;
+    const interval = setInterval(
+        () => {
+            pyramid.rotate_and_draw(theta, phi);
+            theta += 0.03;
+            phi += 0.03;
+        },
+        50
+    );
+}
 
 /**
  * notation: [x, y, z], where z faces "out" of the screen towards the viewer
@@ -336,5 +312,5 @@ function close_equals(a, b) {
 }
 
 function clearCanvas(canvas) {
-    canvas.getContext("2d").clearRect(0, 0, this.canvas.width, this.canvas.height);
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 }
