@@ -195,20 +195,24 @@ function display_cube(canvas_elem) {
     let theta = 4,
         theta_change = 0.03;
     const interval = setInterval(() => {
-        if (phi > 7) {
-            clearInterval(interval);
-        }
+        // if (phi > 7) {
+        //     clearInterval(interval);
+        // }    
 
         //                   theta, phi
         cube.rotate_and_draw(theta, phi);
 
         phi += phi_change;
         theta += theta_change;
+        console.log(theta, phi);
+
         if (phi > two_pi) {
             phi -= two_pi;
+            theta -= two_pi;
         }
 
     }, 50);
+    document.addEventListener("click", ()=> {clearInterval(interval);});
 }
 
 function display_pyramid(canvas_elem) {
@@ -217,7 +221,7 @@ function display_pyramid(canvas_elem) {
         [0, 0, 100],
         [87, 0, -50],
         [-87, 0, -50],
-        [0, 100, 0]
+        [0, 150, 0]
     ]
     const coords = new TriPyramid_coords(template_points);
     const pyramid = new Shape(
@@ -227,6 +231,8 @@ function display_pyramid(canvas_elem) {
         TriPyramid_coords,
         true
     );
+
+    // pyramid.draw_lines();
     
     let theta = 0, 
         phi = 0;
@@ -240,6 +246,7 @@ function display_pyramid(canvas_elem) {
     );
 }
 
+const two_pi = 2 * Math.PI;
 /**
  * notation: [x, y, z], where z faces "out" of the screen towards the viewer
  * rotates basis vector of [0, 0, 1]. details in google doc
@@ -247,8 +254,8 @@ function display_pyramid(canvas_elem) {
  * @param {Number} phi  // radians, angle vector makes with [0, 0, 1]
  */
 function rotated_basis_vector(theta, phi) {
-    theta = theta % Math.PI;
-    phi = phi % Math.PI;
+    // theta = theta % two_pi;
+    // phi = phi % two_pi;
 
     let sin_theta = Math.sin(theta);
     return new Vector(
