@@ -187,7 +187,9 @@ function display_cube(canvas_elem) {
     );
     cube.draw_lines();
 
-    // cube.rotate_and_draw(1, 1);
+    cube.rotate_and_draw(8.7, 4);
+
+    return;
     
     let two_pi = Math.PI * 2;
     let phi = 0,
@@ -208,7 +210,6 @@ function display_cube(canvas_elem) {
 
         if (phi > two_pi) {
             phi -= two_pi;
-            theta -= two_pi;
         }
 
     }, 50);
