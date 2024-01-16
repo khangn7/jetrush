@@ -189,7 +189,7 @@ function display_cube(canvas_elem) {
 
     cube.rotate_and_draw(8.7, 4);
 
-    return;
+    // return;
     
     let two_pi = Math.PI * 2;
     let phi = 0,
