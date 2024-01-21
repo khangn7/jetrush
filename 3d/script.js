@@ -135,7 +135,7 @@ class Shape {
         clearCanvas(this.canvas);
         this.draw_lines();
 
-        this.liens = tmp_reference; // reassign
+        this.lines = tmp_reference; // reassign
     }
 }
 
