@@ -1,3 +1,4 @@
+
 export class Vector {
     /**
      * // don't preemptively translate to center of canvas. just act as if (0, 0) is center
@@ -114,28 +115,80 @@ export class Cube_coords { // could be used for other things than cubes
     }
 }
 
-export class gridplane {
+export class Grid_coords {
     /**
      * 
-     * @param {Number} range
+     * square grid
+     * 
+     * can generate points. if so pass false into points and give range, y, square_count
+     * 
+     * @param {Array[Vector]} _points 
+     * // should have Vectors in this order:
+     * // furthest (lowest z) left (lowest x) corner to closest (high z) rightmost (high x) corner
+     * // rows one after another (not columns)
+     * 
+     * @param {Number} range half of width/length of the square
      * @param {Number} y y level of plane
-     * @param {Number} increment_count amount of squares
+     * @param {Number} square_count how many squares per dimension
      */
-    constructor(range, y, increment_count) {
-        let s_points = [];
-        let square_size = Math.floor(range/increment_count);
-        let half_range = Math.floor(range * 0.5);
+    constructor(_points=false, range, y, square_count) {
+        
+        let s_points;
+        let n; // points per row/column
 
-        // z, start from most negative row
-        for (let i = 0; i < increment_count; i++) {
-            // y, start from most negative
-            for (let q = 0; q < increment_count; q++) {
-                s_points.push([
-                    -half_range + i * square_size, // 
-                    y, 
-                    -half_range + q
-                ])
+        
+        if (!_points) { // if autogenerate
+
+            s_points = [];
+            let square_size = Math.floor(range/square_count);
+            let half_range = Math.floor(range * 0.5);
+
+            // z, start from most negative row
+            for (let i = 0; i <= square_count; i++) {
+                // x, start from most negative
+                for (let q = 0; q <= square_count; q++) {
+                    s_points.push(
+                        new Vector(
+                            -half_range + q * square_size, // x
+                            y,                             // y
+                            -half_range + i * square_size  // z
+                        )
+                    );
+                }
+            }
+
+            this.points = s_points;
+            n = square_count + 1;
+
+        } else { // else passed points
+
+            this.points = _points;
+            n = Math.sqrt(_points.length);
+            
+            s_points = _points;
+
+        }
+
+        // console.log("points", s_points);
+
+        let s_lines = [];
+        for (let i = 0; i < n; i++) {
+            for (let q = 1; q < n; q++) {
+                // connect points along x dimension
+                // console.log(i * n + q);
+                s_lines.push(
+                    s_points[i * n + q],
+                    s_points[i * n + q - 1]
+                );
+                // connect points along z dimension
+                // s_lines.push(
+                //     s_points[(q - 1) * (n + 1) + i],
+                //     s_points[q * (n + 1) + i]
+                // );
             }
         }
+        this.lines = s_lines;
+        // console.log("lines", this.lines);
+        
     }
 }

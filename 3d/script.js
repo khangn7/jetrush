@@ -16,8 +16,7 @@ note that this doesn't take perspective into account
 import { 
     Vector, 
     // Cube_coords,
-    TriPyramid_coords,
-    Cube_coords
+    Grid_coords
 } from "./coords.js";
 
 class Shape {
@@ -120,17 +119,21 @@ class Shape {
 
         // console.log(i_hat, j_hat, k_hat);
 
-        const new_points = [];
+        const new_points = []; // array of Vectors
         const point_count = this.points.length;
         for (let i = 0; i < point_count; i++) {
             let new_point = linear_combination3d(this.points[i], i_hat, j_hat, k_hat);
-            new_points.push([new_point.x, new_point.y, new_point.z]);
+            new_points.push(new_point);
         }
+
+        // console.log("np", new_points)
 
         const new_coords = new this.coord_class(new_points);
 
         let tmp_reference = this.lines; // store reference so it's not lost
         this.lines = new_coords.lines;
+
+        console.log("nl", this.lines);
 
         clearCanvas(this.canvas);
         this.draw_lines();
@@ -155,41 +158,29 @@ function main() {
         canvas_elem.height--;
     }
 
-    display_cube(canvas_elem);
-
-    // display_pyramid(canvas_elem);
+    display_grid(canvas_elem);
 }
 
 main();
 
-function display_cube(canvas_elem) {
-    let template_points = [
-        // [x, y, z]
-        [-100, -100, -100], // back bottom left
-        [100, -100, -100], // back bottom right
-        [100, 100, -100], // back top right
-        [-100, 100, -100], // back top left
+function display_grid(canvas_elem) {
+    const grid_coords = new Grid_coords(false, 300, 0, 3);
 
-        [-100, -100, 100], // front bottom left
-        [100, -100, 100], // front bottom right
-        [100, 100, 100], // front top right
-        [-100, 100, 100] // front top left
-    ];
-    const cube_coords = new Cube_coords(template_points);
-
-    const cube = new Shape(
+    const grid = new Shape(
         canvas_elem,
-        cube_coords.points, 
-        cube_coords.lines,
-        Cube_coords,
+        grid_coords.points, 
+        grid_coords.lines,
+        Grid_coords,
         true // dont_hardcopy. here this is used so references in s_lines can be used.
              // as in, so we only need to change values of s_points and s_lines values point to them
     );
-    cube.draw_lines();
 
-    cube.rotate_and_draw(8.7, 4);
+    // console.log(grid.lines);
+    grid.draw_lines();
 
-    // return;
+    grid.rotate_and_draw(0, Math.PI * 0.5);
+
+    return;
     
     let two_pi = Math.PI * 2;
     let phi = 0,
@@ -202,11 +193,11 @@ function display_cube(canvas_elem) {
         // }    
 
         //                   theta, phi
-        cube.rotate_and_draw(theta, phi);
+        grid.rotate_and_draw(theta, phi);
 
         phi += phi_change;
         theta += theta_change;
-        console.log(theta, phi);
+        // console.log(theta, phi);
 
         // if (phi > two_pi) {
         //     phi -= two_pi;
@@ -229,9 +220,9 @@ function rotated_basis_vector(theta, phi) {
 
     let sin_theta = Math.sin(theta);
     return new Vector(
-        sin_theta * Math.sin(phi),
-        Math.cos(theta),
-        sin_theta * Math.cos(phi)
+        Math.round(sin_theta * Math.sin(phi)),
+        Math.round(Math.cos(theta)),
+        Math.round(sin_theta * Math.cos(phi))
     )
 }
 
