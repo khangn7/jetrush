@@ -113,3 +113,29 @@ export class Cube_coords { // could be used for other things than cubes
         ];
     }
 }
+
+export class gridplane {
+    /**
+     * 
+     * @param {Number} range
+     * @param {Number} y y level of plane
+     * @param {Number} increment_count amount of squares
+     */
+    constructor(range, y, increment_count) {
+        let s_points = [];
+        let square_size = Math.floor(range/increment_count);
+        let half_range = Math.floor(range * 0.5);
+
+        // z, start from most negative row
+        for (let i = 0; i < increment_count; i++) {
+            // y, start from most negative
+            for (let q = 0; q < increment_count; q++) {
+                s_points.push([
+                    -half_range + i * square_size, // 
+                    y, 
+                    -half_range + q
+                ])
+            }
+        }
+    }
+}

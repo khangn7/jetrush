@@ -208,43 +208,12 @@ function display_cube(canvas_elem) {
         theta += theta_change;
         console.log(theta, phi);
 
-        if (phi > two_pi) {
-            phi -= two_pi;
-        }
+        // if (phi > two_pi) {
+        //     phi -= two_pi;
+        // }
 
-    }, 50);
+    }, 20);
     document.addEventListener("click", ()=> {clearInterval(interval);});
-}
-
-function display_pyramid(canvas_elem) {
-    let template_points = [
-        // [x, y, z]
-        [0, 0, 100],
-        [87, 0, -50],
-        [-87, 0, -50],
-        [0, 150, 0]
-    ]
-    const coords = new TriPyramid_coords(template_points);
-    const pyramid = new Shape(
-        canvas_elem,
-        coords.points,
-        coords.lines,
-        TriPyramid_coords,
-        true
-    );
-
-    // pyramid.draw_lines();
-    
-    let theta = 0, 
-        phi = 0;
-    const interval = setInterval(
-        () => {
-            pyramid.rotate_and_draw(theta, phi);
-            theta += 0.03;
-            phi += 0.03;
-        },
-        50
-    );
 }
 
 const two_pi = 2 * Math.PI;
