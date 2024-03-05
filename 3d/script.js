@@ -58,52 +58,88 @@ class Shape {
 
     }
 
-    draw_points() {
-        const point_count = this.points.length;
-        const ctx = this.canvas.getContext("2d");
-        for (let i = 0; i < point_count; i++) {
-            ctx.beginPath();
-            ctx.moveTo(
-                Math.round(this.translate_coord(this.points[i].x)), 
-                Math.round(this.translate_coord(this.points[i].y))
-            );
-            ctx.lineTo( // don't move at all essentially
-                Math.round(this.translate_coord(this.points[i].x)), 
-                Math.round(this.translate_coord(this.points[i].y))
-            );
-            ctx.stroke();
-        }
-    }
+    // draw_points() {
+    //     const point_count = this.points.length;
+    //     const ctx = this.canvas.getContext("2d");
+    //     for (let i = 0; i < point_count; i++) {
+    //         ctx.beginPath();
+    //         ctx.moveTo(
+    //             Math.round(this.translate_coord(this.points[i].x)), 
+    //             Math.round(this.translate_coord(this.points[i].y))
+    //         );
+    //         ctx.lineTo( // don't move at all essentially
+    //             Math.round(this.translate_coord(this.points[i].x)), 
+    //             Math.round(this.translate_coord(this.points[i].y))
+    //         );
+    //         ctx.stroke();
+    //     }
+    // }
 
     draw_lines() {
         const line_count = this.lines.length;
         const ctx = this.canvas.getContext("2d");
-        for (let i = 0; i < line_count; i += 2) {
-            ctx.beginPath();
-            ctx.moveTo(
-                Math.round(this.translate_coord(this.lines[i].x,true)), 
-                Math.round(this.translate_coord(this.lines[i].y, false))
 
+        const pipeline = (/*Vector*/ coords) => {
+            this.perspective(coords); // have to do persepective first
+            // console.log(coords);
+            this.translate_coords(coords);
+        }
+
+        for (let i = 0; i < line_count; i += 2) {
+            
+            ctx.beginPath();
+
+            let display_coord = new Vector(this.lines[i].x, this.lines[i].y, this.lines[i].z);
+            pipeline(display_coord);
+            ctx.moveTo(
+                display_coord.x, 
+                display_coord.y
             );
+            
+            display_coord = new Vector(this.lines[i + 1].x, this.lines[i + 1].y, this.lines[i + 1].z);
+            pipeline(display_coord);
             ctx.lineTo(
-                Math.round(this.translate_coord(this.lines[i + 1].x, true)), 
-                Math.round(this.translate_coord(this.lines[i + 1].y, false))
+                display_coord.x,
+                display_coord.y
             );
+
             ctx.stroke();
         }
     }
 
     /**
-     * returns coordinate to use for canvas element's display methods
-     * @param {Number} value coord
-     * @param {Boolean} is_x if it's for an x value then True, if y then False
+     * @param {String} dimension 'x', 'y' or 'z'
+     * @param {Number} direction -1 or 1
      */
-    translate_coord(value, is_x) {
-        if (is_x) {
-            return value + this.canvas_halfWidth;
-        } else {
-            return -value + this.canvas_halfHeight;
+    user_translate(dimension, direction) {
+        const speed = 5;
+        for (let i in this.points) {
+            this.points[i][dimension] += direction * speed;
         }
+        const new_coords = new this.coord_class(this.points);
+        this.lines = new_coords.lines;
+    }
+
+    /**
+     * returns coordinate to use for canvas element's display methods
+     * @param {Vector} coords coords passed by reference
+     */
+    translate_coords(coords) {
+        coords.x = coords.x + this.canvas_halfWidth;
+        coords.y = -coords.y + this.canvas_halfHeight;
+    }
+
+    /**
+     * @param {Vector} coords passed by reference
+     * scales x and y values based on z value
+     * more negative z ("further" away from viewer) = smaller x and y
+     * more positive z ("closer" to viewer) = bigger x and y
+     */
+    perspective(coords) {
+        const z_max = 1000;
+        let percent = (coords.z + z_max) / (z_max * 0.5);
+        coords.x *= percent;
+        coords.y *= percent ** 1.5; // exaggerate y scaling more
     }
 
     rotate_and_draw(theta, phi) {
@@ -133,7 +169,7 @@ class Shape {
         let tmp_reference = this.lines; // store reference so it's not lost
         this.lines = new_coords.lines;
 
-        console.log("nl", this.lines);
+        // console.log("nl", this.lines);
 
         clearCanvas(this.canvas);
         this.draw_lines();
@@ -164,7 +200,7 @@ function main() {
 main();
 
 function display_grid(canvas_elem) {
-    const grid_coords = new Grid_coords(false, 300, 0, 3);
+    const grid_coords = new Grid_coords(false, 300, -100, 10);
 
     const grid = new Shape(
         canvas_elem,
@@ -178,32 +214,33 @@ function display_grid(canvas_elem) {
     // console.log(grid.lines);
     grid.draw_lines();
 
-    grid.rotate_and_draw(0, Math.PI * 0.5);
-
-    return;
-    
-    let two_pi = Math.PI * 2;
+    let theta = Math.PI * 0.5;
     let phi = 0,
-        phi_change = 0.03;
-    let theta = 4,
-        theta_change = 0.03;
+        phi_change = Math.PI * 0.005;
+
     const interval = setInterval(() => {
-        // if (phi > 7) {
-        //     clearInterval(interval);
-        // }    
-
-        //                   theta, phi
-        grid.rotate_and_draw(theta, phi);
-
         phi += phi_change;
-        theta += theta_change;
-        // console.log(theta, phi);
+        grid.rotate_and_draw(theta, phi);
+    }, 30);
 
-        // if (phi > two_pi) {
-        //     phi -= two_pi;
-        // }
+    // document.addEventListener("keydown", (e) => {
+    //     if (e.key === "ArrowUp") {
+    //         grid.user_translate('z', 1);
+    //         clearCanvas(grid.canvas);
+    //         grid.draw_lines();
+    //     } else if (e.key === "ArrowDown") {
+    //         grid.user_translate('z', -1);
+    //         clearCanvas(grid.canvas);
+    //         grid.draw_lines();
+    //     } else if (e.key === "ArrowRight") {
+    //         phi -= phi_change;
+    //         grid.rotate_and_draw(theta, phi)
+    //     } else if (e.key === "ArrowLeft") {
+    //         phi += phi_change;
+    //         grid.rotate_and_draw(theta, phi);
+    //     }
+    // })
 
-    }, 20);
     document.addEventListener("click", ()=> {clearInterval(interval);});
 }
 
@@ -220,9 +257,9 @@ function rotated_basis_vector(theta, phi) {
 
     let sin_theta = Math.sin(theta);
     return new Vector(
-        Math.round(sin_theta * Math.sin(phi)),
-        Math.round(Math.cos(theta)),
-        Math.round(sin_theta * Math.cos(phi))
+        sin_theta * Math.sin(phi),
+        Math.cos(theta),
+        sin_theta * Math.cos(phi)
     )
 }
 

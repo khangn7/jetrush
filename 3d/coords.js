@@ -180,13 +180,15 @@ export class Grid_coords {
                     s_points[i * n + q],
                     s_points[i * n + q - 1]
                 );
+
                 // connect points along z dimension
-                // s_lines.push(
-                //     s_points[(q - 1) * (n + 1) + i],
-                //     s_points[q * (n + 1) + i]
-                // );
+                s_lines.push(
+                    s_points[(q - 1) * n + i],
+                    s_points[q * n + i]
+                );
             }
         }
+
         this.lines = s_lines;
         // console.log("lines", this.lines);
         
