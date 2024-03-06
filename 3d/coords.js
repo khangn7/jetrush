@@ -53,7 +53,8 @@ export class TriPyramid_coords {
 
 export class Cube_coords { // could be used for other things than cubes
     /**
-     * @param {Array[Array[Number]]} _points 
+     * 
+     * @param {Array[Vector]} _points 
      *      should be 8 points total
      *      they have to be be in this EXACT order of corners
      *      given corners [a, b, c, d, e, f, g, h] 
@@ -79,38 +80,24 @@ export class Cube_coords { // could be used for other things than cubes
             ]
      */
     constructor(_points) {
-        let s_points = [];
-        const point_count = _points.length;
-        if (point_count != 8) {
-            throw "Cube_coords constructor arg _points.length should be 8";
-        }
-        for (let i = 0; i < point_count; i++) {
-            s_points.push(
-                new Vector(
-                    _points[i][0], // x
-                    _points[i][1], // y
-                    _points[i][2]  // z
-                )
-            );
-        }
-        this.points = s_points;
+        this.points = _points;
         // configuration of edges
         this.lines = [
             // back side 
-            s_points[0], s_points[1],
-            s_points[1], s_points[2],
-            s_points[2], s_points[3],
-            s_points[3], s_points[0],
+            _points[0], _points[1],
+            _points[1], _points[2],
+            _points[2], _points[3],
+            _points[3], _points[0],
             // front side
-            s_points[4], s_points[5],
-            s_points[5], s_points[6],
-            s_points[6], s_points[7],
-            s_points[7], s_points[4],
+            _points[4], _points[5],
+            _points[5], _points[6],
+            _points[6], _points[7],
+            _points[7], _points[4],
             // lines connecting them
-            s_points[0], s_points[4],
-            s_points[1], s_points[5],
-            s_points[2], s_points[6],
-            s_points[3], s_points[7]
+            _points[0], _points[4],
+            _points[1], _points[5],
+            _points[2], _points[6],
+            _points[3], _points[7]
         ];
     }
 }

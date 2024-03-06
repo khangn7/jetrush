@@ -15,8 +15,8 @@ note that this doesn't take perspective into account
 
 import { 
     Vector, 
-    // Cube_coords,
-    Grid_coords
+    Cube_coords,
+    // Grid_coords
 } from "./coords.js";
 
 class Shape {
@@ -139,12 +139,13 @@ class Shape {
         const z_max = 1000;
         let percent = (coords.z + z_max) / (z_max * 0.5);
         coords.x *= percent;
-        coords.y *= percent ** 1.5; // exaggerate y scaling more
+
+        const y_scale = 1; // adjust for each situtation
+
+        coords.y *= percent ** y_scale; // exaggerate y scaling more
     }
 
     rotate_and_draw(theta, phi) {
-
-        const half_pi = Math.PI * 0.5;
         
         // angle translation
         let translated_angles = translate_angles(theta, phi);
@@ -162,14 +163,14 @@ class Shape {
             new_points.push(new_point);
         }
 
-        // console.log("np", new_points)
+        console.log("np", new_points)
 
         const new_coords = new this.coord_class(new_points);
 
         let tmp_reference = this.lines; // store reference so it's not lost
         this.lines = new_coords.lines;
 
-        // console.log("nl", this.lines);
+        console.log("nl", new_coords);
 
         clearCanvas(this.canvas);
         this.draw_lines();
@@ -194,10 +195,71 @@ function main() {
         canvas_elem.height--;
     }
 
-    display_grid(canvas_elem);
+    // display_grid(canvas_elem);
+    display_cube(canvas_elem);
 }
 
 main();
+
+function display_cube(canvas_elem) {
+    let template_points = [
+        // [x, y, z]
+        [-100, -100, -100], // back bottom left
+        [100, -100, -100], // back bottom right
+        [100, 100, -100], // back top right
+        [-100, 100, -100], // back top left
+
+        [-100, -100, 100], // front bottom left
+        [100, -100, 100], // front bottom right
+        [100, 100, 100], // front top right
+        [-100, 100, 100] // front top left
+    ];
+    for (let i in template_points) {
+        template_points[i] = new Vector(
+            template_points[i][0] * 0.7, 
+            template_points[i][1] * 0.7, 
+            template_points[i][2] * 0.7
+        );
+    }
+    const cube_coords = new Cube_coords(template_points);
+
+    const cube = new Shape(
+        canvas_elem,
+        cube_coords.points, 
+        cube_coords.lines,
+        Cube_coords,
+        true // dont_hardcopy. here this is used so references in s_lines can be used.
+             // as in, so we only need to change values of s_points and s_lines values point to them
+    );
+    cube.draw_lines();
+
+    // cube.rotate_and_draw(0, 0);
+
+    // return;
+    
+    let phi = 0,
+        phi_change = Math.PI * 0.005;
+    let theta = Math.PI * 0.5,
+        theta_change = 0.03;
+
+    const interval = setInterval(() => {
+        // if (phi > 7) {
+        //     clearInterval(interval);
+        // }    
+
+        //                   theta, phi
+        cube.rotate_and_draw(theta, phi);
+
+        phi += phi_change;
+        // console.log(theta, phi);
+
+        if (phi > two_pi) {
+            phi -= two_pi;
+        }
+
+    }, 50);
+    document.addEventListener("click", ()=> {clearInterval(interval);});
+}
 
 function display_grid(canvas_elem) {
     const grid_coords = new Grid_coords(false, 300, -100, 10);
