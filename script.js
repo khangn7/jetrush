@@ -19,15 +19,13 @@ import {
 } from "./lib/coords.js";
 
 import {
-    Vector,
-    rotated_basis_vector,
-    translate_angles,
-    linear_combination3d
+    Vector
 } from "./lib/math_functions.js";
 
 import {
-    Shape
-} from "./lib/shape.js"
+    Shape,
+    GridShape
+} from "./lib/shape.js";
 
 
 
@@ -45,9 +43,11 @@ function main() {
         canvas_elem.height--;
     }
 
-    let grid = make_grid(canvas_elem);
+    const grid1 = make_grid(canvas_elem);
+    const grid2 = make_grid(canvas_elem);
+
     // let cube = make_cube(canvas_elem);
-    let display_things = [ grid];
+    let display_things = [grid1, grid2];
     const paintframe = (things /* Array pf shapes */) => {
         clearCanvas(canvas_elem);
         for (let i in things) {
@@ -55,13 +55,38 @@ function main() {
         }
     };
 
+    let grid_halfsize = 10000;
+    grid2.user_translate('z', grid_halfsize);
+
+
     paintframe(display_things);
 
-    const FPS = 200;
+    const FPS = 60;
+
+    const SPEED = 100;
+    let z1 = 0;
+    let z2 = grid_halfsize;
 
     const interval = setInterval(() => {
-        grid.user_translate('z', 10);
+
+       z1 += SPEED;
+        if (z1 > 16000) {
+            grid1.user_translate('z', - z1);
+            z1 = 0;
+        }
+
+        grid1.user_translate('z', SPEED);
+
+       z2 += SPEED;
+        if (z2 > 16000) {
+            grid2.user_translate('z', - z2);
+            z2 = 0;
+        }
+
+        grid2.user_translate('z', SPEED);
+
         paintframe(display_things);
+
     }, 1000/FPS);
 
     document.addEventListener("click", ()=> {
@@ -109,16 +134,23 @@ function make_cube(canvas_elem) {
 }
 
 function make_grid(canvas_elem) {
-    // _points=false, x_range, z_range, y, x_square_count, z_square_count
-    const grid_coords = new Grid_coords(false, 100, 10000, -100, 10, 10);
+    let x_square_count = 10;
+    let z_square_count = 10;
 
-    const grid = new Shape(
+    // _points=false, x_range, z_range, y, x_square_count, z_square_count
+    const grid_coords = new Grid_coords(false, 100, 10000, -100, x_square_count, z_square_count);
+
+    const grid = new GridShape(
         canvas_elem,
         grid_coords.points, 
         grid_coords.lines,
         Grid_coords,
-        true // dont_hardcopy. here this is used so references in s_lines can be used.
+        true,// dont_hardcopy. here this is used so references in s_lines can be used.
              // as in, so we only need to change values of s_points and s_lines values point to them
+        {
+            x_square_count: x_square_count,
+            z_square_count: z_square_count
+        }
     );
 
     return grid;
