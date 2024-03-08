@@ -15,7 +15,7 @@ note that this doesn't take perspective into account
 
 import { 
     Cube_coords,
-    Grid_coords
+    // Grid_coords
 } from "./lib/coords.js";
 
 import {
@@ -24,7 +24,8 @@ import {
 
 import {
     Shape,
-    GridShape
+    GridShape,
+    CubeShape
 } from "./lib/shape.js";
 
 
@@ -43,55 +44,58 @@ function main() {
         canvas_elem.height--;
     }
 
-    const grid1 = make_grid(canvas_elem);
-    const grid2 = make_grid(canvas_elem);
+    // const grid1 = make_grid(canvas_elem);
+    // const grid2 = make_grid(canvas_elem);
 
-    // let cube = make_cube(canvas_elem);
-    let display_things = [grid1, grid2];
-    const paintframe = (things /* Array pf shapes */) => {
+    let cube = make_cube(canvas_elem);
+    let display_things = [cube];
+    const paintframe = (things /* array of Shapes */) => {
         clearCanvas(canvas_elem);
         for (let i in things) {
             things[i].draw_lines();
         }
     };
 
-    let grid_halfsize = 10000;
-    grid2.user_translate('z', grid_halfsize);
+    // let grid_halfsize = 10000;
+    // grid2.user_translate('z', grid_halfsize);
 
+    // cube.draw_surface(0);
+    console.log(cube.surfaces[0])
 
     paintframe(display_things);
+
+    // return
 
     const FPS = 60;
 
     const SPEED = 100;
-    let z1 = 0;
-    let z2 = grid_halfsize;
+    let phi = 0, theta = 0;
 
-    const interval = setInterval(() => {
+    let running = false;
 
-       z1 += SPEED;
-        if (z1 > 16000) {
-            grid1.user_translate('z', - z1);
-            z1 = 0;
-        }
-
-        grid1.user_translate('z', SPEED);
-
-       z2 += SPEED;
-        if (z2 > 16000) {
-            grid2.user_translate('z', - z2);
-            z2 = 0;
-        }
-
-        grid2.user_translate('z', SPEED);
-
-        paintframe(display_things);
-
-    }, 1000/FPS);
+    let interval;
 
     document.addEventListener("click", ()=> {
-        clearInterval(interval);
-        console.log("interval stopped");
+        if (!running) {
+            running = true
+            interval = setInterval(() => {
+
+                if (phi > 6.28) {
+                    phi = 0;
+                }
+
+                phi += Math.PI * 0.005;
+                theta += Math.PI * 0.005;
+        
+                cube.rotate_and_draw(Math.PI * 0.6, phi);
+        
+            }, 1000/FPS);
+
+        } else {
+            clearInterval(interval);
+            console.log("interval stopped");
+            running = false
+        }
     });
 
 }
@@ -113,21 +117,23 @@ function make_cube(canvas_elem) {
     ];
     for (let i in template_points) {
         template_points[i] = new Vector(
-            template_points[i][0] * 0.4, 
-            template_points[i][1] * 0.4 - 50, 
-            template_points[i][2] * 0.4 + 500
+            template_points[i][0] * 0.7, 
+            template_points[i][1] * 0.7, 
+            template_points[i][2] * 0.7
         );
     }
     const cube_coords = new Cube_coords(template_points);
 
-    const cube = new Shape(
-        canvas_elem,
-        cube_coords.points, 
-        cube_coords.lines,
-        Cube_coords,
-        true // dont_hardcopy. here this is used so references in s_lines can be used.
-             // as in, so we only need to change values of s_points and s_lines values point to them
-    );
+    // const cube = new Shape(
+    //     canvas_elem,
+    //     cube_coords.points, 
+    //     cube_coords.lines,
+    //     Cube_coords,
+    //     true // dont_hardcopy. here this is used so references in s_lines can be used.
+    //          // as in, so we only need to change values of s_points and s_lines values point to them
+    // );
+
+    const cube = new CubeShape(canvas_elem, cube_coords);
 
     return cube;
 
