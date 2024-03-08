@@ -44,6 +44,7 @@ function main() {
         canvas_elem.height--;
     }
 
+
     // const grid1 = make_grid(canvas_elem);
     // const grid2 = make_grid(canvas_elem);
 
@@ -52,17 +53,16 @@ function main() {
     const paintframe = (things /* array of Shapes */) => {
         clearCanvas(canvas_elem);
         for (let i in things) {
-            things[i].draw_lines();
+            for (let j in things[i].surfaces) {
+                things[i].draw_surface(j);
+            }
         }
     };
 
     // let grid_halfsize = 10000;
     // grid2.user_translate('z', grid_halfsize);
 
-    // cube.draw_surface(0);
-    console.log(cube.surfaces[0])
-
-    paintframe(display_things);
+    // paintframe(display_things);
 
     // return
 
