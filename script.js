@@ -54,15 +54,16 @@ function main() {
         }
     };
 
-    // cube.rotate(0.5, 1);
+    // cube.rotate(0.6 * Math.PI, 0);
     // cube.draw_surfaces();
+    // console.log(cube.display_coord_obj.surfaces);
     // // console.log(cube.display_coord_obj.surfaces[0])
 
     // // paintframe(display_things);
 
     // return
 
-    const FPS = 30;
+    const FPS = 60;
 
     const SPEED = 100;
     let phi = 0, theta = 0;
@@ -84,12 +85,12 @@ function main() {
                 // theta += Math.PI * 0.005;
         
                 cube.rotate(
-                    map_angle_to_range(Math.PI * 0.6), 
-                    map_angle_to_range(phi)
+                    Math.PI * 0.8, 
+                    phi
                 );
 
                 paintframe(display_things);
-                // console.log(0)
+                // console.log(cube.display_coord_obj.surfaces[0])
         
             }, 1000/FPS);
 
