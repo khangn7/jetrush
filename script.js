@@ -19,7 +19,8 @@ import {
 } from "./lib/coords.js";
 
 import {
-    Vector
+    Vector,
+    map_angle_to_range
 } from "./lib/math_functions.js";
 
 import {
@@ -44,29 +45,24 @@ function main() {
         canvas_elem.height--;
     }
 
-
-    // const grid1 = make_grid(canvas_elem);
-    // const grid2 = make_grid(canvas_elem);
-
     let cube = make_cube(canvas_elem);
     let display_things = [cube];
     const paintframe = (things /* array of Shapes */) => {
         clearCanvas(canvas_elem);
         for (let i in things) {
-            for (let j in things[i].surfaces) {
-                things[i].draw_surface(j);
-            }
+            things[i].draw_surfaces();
         }
     };
 
-    // let grid_halfsize = 10000;
-    // grid2.user_translate('z', grid_halfsize);
+    // cube.rotate(0.5, 1);
+    // cube.draw_surfaces();
+    // // console.log(cube.display_coord_obj.surfaces[0])
 
-    // paintframe(display_things);
+    // // paintframe(display_things);
 
     // return
 
-    const FPS = 60;
+    const FPS = 30;
 
     const SPEED = 100;
     let phi = 0, theta = 0;
@@ -85,9 +81,15 @@ function main() {
                 }
 
                 phi += Math.PI * 0.005;
-                theta += Math.PI * 0.005;
+                // theta += Math.PI * 0.005;
         
-                cube.rotate_and_draw(Math.PI * 0.6, phi);
+                cube.rotate(
+                    map_angle_to_range(Math.PI * 0.6), 
+                    map_angle_to_range(phi)
+                );
+
+                paintframe(display_things);
+                // console.log(0)
         
             }, 1000/FPS);
 
@@ -97,6 +99,8 @@ function main() {
             running = false
         }
     });
+
+    document.body.click();
 
 }
 
@@ -117,12 +121,12 @@ function make_cube(canvas_elem) {
     ];
     for (let i in template_points) {
         template_points[i] = new Vector(
-            template_points[i][0] * 0.7, 
-            template_points[i][1] * 0.7, 
-            template_points[i][2] * 0.7
+            template_points[i][0] * 1.5, 
+            template_points[i][1] * 1.5, 
+            template_points[i][2] * 1.5
         );
     }
-    const cube_coords = new Cube_coords(template_points);
+    const cube_coords = new Cube_coords(template_points, Math.PI * 0.5, 0);
 
     // const cube = new Shape(
     //     canvas_elem,
