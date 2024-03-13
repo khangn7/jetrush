@@ -15,7 +15,8 @@ note that this doesn't take perspective into account
 
 import { 
     Cube_coords,
-    // Grid_coords
+    // Grid_coords,
+    Line_coords
 } from "./lib/coords.js";
 
 import {
@@ -46,22 +47,37 @@ function main() {
     }
 
     let cube = make_cube(canvas_elem);
-    let display_things = [cube];
+
+    let line_coords = new Line_coords([
+        new Vector(0, 0, 0),
+        new Vector(0, 0, 100)
+    ]);
+    let line1 = new Shape(canvas_elem, line_coords, Line_coords);
+    line_coords = new Line_coords([
+        new Vector(0, 0, 0),
+        new Vector(0, -100, 0)
+    ]);
+    let line2 = new Shape(canvas_elem, line_coords, Line_coords);
+    
+    let display_things = {
+        "line1": line1, 
+        "line2": line2, 
+        "cube": cube
+    };
     const paintframe = (things /* array of Shapes */) => {
         clearCanvas(canvas_elem);
         for (let i in things) {
-            things[i].draw_surfaces();
+            // things[i].draw_surfaces();
+            things[i].draw_lines();
         }
     };
 
-    // cube.rotate(0.6 * Math.PI, 0);
+    line1.rotate(4.146902302738511, 4.146902302738511);
     // cube.draw_surfaces();
-    // console.log(cube.display_coord_obj.surfaces);
-    // // console.log(cube.display_coord_obj.surfaces[0])
 
-    // // paintframe(display_things);
+    paintframe(display_things);
 
-    // return
+    return
 
     const FPS = 60;
 
@@ -77,20 +93,20 @@ function main() {
             running = true
             interval = setInterval(() => {
 
-                if (phi > 6.28) {
-                    phi = 0;
-                }
+                // if (phi > 6.28) {
+                //     phi = 0;
+                // }
 
                 phi += Math.PI * 0.005;
                 // theta += Math.PI * 0.005;
+                console.log("origin", phi);
         
                 cube.rotate(
-                    Math.PI * 0.8, 
+                    phi, 
                     phi
                 );
 
                 paintframe(display_things);
-                // console.log(cube.display_coord_obj.surfaces[0])
         
             }, 1000/FPS);
 
@@ -122,9 +138,9 @@ function make_cube(canvas_elem) {
     ];
     for (let i in template_points) {
         template_points[i] = new Vector(
-            template_points[i][0] * 1.5, 
-            template_points[i][1] * 1.5, 
-            template_points[i][2] * 1.5
+            template_points[i][0] * 0.1, 
+            template_points[i][1] * 0.1, 
+            template_points[i][2] * 0.1
         );
     }
     const cube_coords = new Cube_coords(template_points, Math.PI * 0.5, 0);
