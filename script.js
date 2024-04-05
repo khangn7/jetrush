@@ -60,15 +60,15 @@ function main() {
     // let line2 = new Shape(canvas_elem, line_coords, Line_coords);
     
     let display_things = {
-        "line1": line1, 
+        // "line1": line1, 
         // "line2": line2, 
         "cube": cube
     };
     const paintframe = (things /* array of Shapes */) => {
         clearCanvas(canvas_elem);
         for (let i in things) {
-            // things[i].draw_surfaces();
-            things[i].draw_lines();
+            things[i].draw_surfaces();
+            // things[i].draw_lines();
         }
     };
 
@@ -76,11 +76,17 @@ function main() {
     // cube.gamespace_position_set(-100, 100, 100);
     // cube.draw_lines();
 
-    console.log("helo")
-    console.log(line1.model_coord_obj)
+
+    cube.rotate(Math.PI, 0);
+    // cube.rotate(Math.PI, 1);
+
+    console.log("k hat", cube.display_k_hat);
+    console.log("phi", cube.display_k_hat_phi, "theta", cube.display_k_hat_theta)
+
     paintframe(display_things);
 
     return
+
 
     const FPS = 60;
 
@@ -105,16 +111,11 @@ function main() {
                 // cube.gamespace_move(1, 0, 0);
 
 
-                theta += Math.PI * 0.005;
+                phi += Math.PI * 0.0005;
                 // console.log(phi)
-                cube.rotate(phi, 0);
+                cube.rotate(phi, 1);
                 cube.rotate(
-                    theta,
-                    1,
-                    true
-                );
-                cube.rotate(
-                    theta,
+                    phi,
                     0,
                     true
                 );
@@ -149,11 +150,12 @@ function make_cube(canvas_elem) {
         [100, 100, 100], // front top right
         [-100, 100, 100] // front top left
     ];
+    const scale = 1;
     for (let i in template_points) {
         template_points[i] = new Vector(
-            template_points[i][0] * 0.5, 
-            template_points[i][1] * 0.5, 
-            template_points[i][2] * 0.5
+            template_points[i][0] * scale, 
+            template_points[i][1] * scale, 
+            template_points[i][2] * scale
         );
     }
     const cube_coords = new Cube_coords(template_points, Math.PI * 0.5, 0);
