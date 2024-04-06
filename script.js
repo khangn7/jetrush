@@ -1,15 +1,10 @@
 /*
 https://docs.google.com/document/d/1O4p7wp5PDOXYR603c-Hvf3A5mCqCEAJT4kB97HY5n2I/edit?usp=sharing
 
-using the canvas as a cartesian plane:
+using the canvas as a cartesian plane
+right handed coordinates CHANGE TO LEFT ASAP
 
-width and height of the canvas element are odd numbers,
-so it can be symmetrical, as in there are equal amount pixels to the right and left of
-the centermost pixels of the element representing the axis x=0. and same for y=0
-
-when displaying a 3d vector, we'll only use it's x and y values.
-note that this doesn't take perspective into account
-(as in, the effect that things further away look smaller)
+when displaying a 3d vector, we'll only use it's x and y values
 
 */
 
@@ -48,11 +43,11 @@ function main() {
 
     let cube = make_cube(canvas_elem);
 
-    let line_coords = new Line_coords([
-        new Vector(0, 0, 0),
-        new Vector(0, 0, 100)
-    ]);
-    let line1 = new Shape(canvas_elem, line_coords, Line_coords);
+    // let line_coords = new Line_coords([
+    //     new Vector(0, 0, 0),
+    //     new Vector(0, 0, 100)
+    // ]);
+    // let line1 = new Shape(canvas_elem, line_coords, Line_coords);
     // line_coords = new Line_coords([
     //     new Vector(0, 0, 0),
     //     new Vector(0, -100, 0)
@@ -73,25 +68,21 @@ function main() {
     };
 
     
-    // cube.gamespace_position_set(-100, 100, 100);
-    // cube.draw_lines();
+    cube.worldspace_position_set(0, 0, -100)
+    // console.log(cube.display_coord_obj)
 
+    // cube.rotate(1, 1);
+    // // cube.rotate(1, 0, true);
 
-    cube.rotate(Math.PI, 0);
-    // cube.rotate(Math.PI, 1);
+    // paintframe(display_things);
 
-    console.log("k hat", cube.display_k_hat);
-    console.log("phi", cube.display_k_hat_phi, "theta", cube.display_k_hat_theta)
-
-    paintframe(display_things);
-
-    return
+    // return
 
 
     const FPS = 60;
 
     const SPEED = 100;
-    let phi = 0, theta = 0;
+    let phi = 0, theta = 0; 
 
     let running = false;
 
@@ -108,10 +99,11 @@ function main() {
                 //     phi -= Math.PI * 0.001;
                 // }
 
-                // cube.gamespace_move(1, 0, 0);
+                // cube.worldspace_move(0, 0, -0.1);
+                
 
 
-                phi += Math.PI * 0.0005;
+                phi += Math.PI * 0.002;
                 // console.log(phi)
                 cube.rotate(phi, 1);
                 cube.rotate(
@@ -150,7 +142,7 @@ function make_cube(canvas_elem) {
         [100, 100, 100], // front top right
         [-100, 100, 100] // front top left
     ];
-    const scale = 1;
+    const scale = 0.2;
     for (let i in template_points) {
         template_points[i] = new Vector(
             template_points[i][0] * scale, 
@@ -158,16 +150,7 @@ function make_cube(canvas_elem) {
             template_points[i][2] * scale
         );
     }
-    const cube_coords = new Cube_coords(template_points, Math.PI * 0.5, 0);
-
-    // const cube = new Shape(
-    //     canvas_elem,
-    //     cube_coords.points, 
-    //     cube_coords.lines,
-    //     Cube_coords,
-    //     true // dont_hardcopy. here this is used so references in s_lines can be used.
-    //          // as in, so we only need to change values of s_points and s_lines values point to them
-    // );
+    const cube_coords = new Cube_coords(template_points);
 
     const cube = new CubeShape(canvas_elem, cube_coords);
 
