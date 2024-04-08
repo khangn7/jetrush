@@ -43,11 +43,11 @@ function main() {
 
     let cube = make_cube(canvas_elem);
 
-    // let line_coords = new Line_coords([
-    //     new Vector(0, 0, 0),
-    //     new Vector(0, 0, 100)
-    // ]);
-    // let line1 = new Shape(canvas_elem, line_coords, Line_coords);
+    let line_coords = new Line_coords([
+        new Vector(0, -50, 0),
+        new Vector(100, -50, 100)
+    ]);
+    let line1 = new Shape(canvas_elem, line_coords, Line_coords);
     // line_coords = new Line_coords([
     //     new Vector(0, 0, 0),
     //     new Vector(0, -100, 0)
@@ -62,17 +62,18 @@ function main() {
     const paintframe = (things /* array of Shapes */) => {
         clearCanvas(canvas_elem);
         for (let i in things) {
-            things[i].draw_surfaces();
-            // things[i].draw_lines();
+            // things[i].draw_surfaces();
+            things[i].draw_lines();
         }
     };
 
     
-    cube.worldspace_position_set(0, 0, -1000)
-    // console.log(cube.display_coord_obj)
+    // line1.worldspace_position_set(0, 0, -200)
+    cube.worldspace_position_set(0, 0, -200)
+    console.log(cube.display_coord_obj)
 
-    // cube.rotate(1, 1);
-    // // cube.rotate(1, 0, true);
+    // // cube.rotate(1, 1);
+    // // // cube.rotate(1, 0, true);
 
     // paintframe(display_things);
 
@@ -87,6 +88,7 @@ function main() {
     let running = false;
 
     let interval;
+    let steps = 0;
 
     document.addEventListener("click", ()=> {
         if (!running) {
@@ -99,18 +101,19 @@ function main() {
                 //     phi -= Math.PI * 0.001;
                 // }
 
+                // line1.worldspace_move(0, 0, 1);
                 cube.worldspace_move(0, 0, 1);
-                
+                steps++;
+                console.log("step", steps);
 
-
-                phi += Math.PI * 0.002;
-                // console.log(phi)
-                cube.rotate_xyz(phi, 1);
-                cube.rotate_xyz(
-                    phi,
-                    0,
-                    true
-                );
+                // phi += Math.PI * 0.002;
+                // // console.log(phi)
+                // cube.rotate_xyz(phi, 1);
+                // cube.rotate_xyz(
+                //     phi,
+                //     0,
+                //     true
+                // );
 
                 paintframe(display_things);
         
