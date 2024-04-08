@@ -102,13 +102,13 @@ function main() {
                 // }
 
                 // line1.worldspace_move(0, 0, 1);
-                cube.worldspace_move(0, 0, 1);
+                // cube.worldspace_move(0, 0, 1);
                 if (cube.furthest_z > -5) {
                     clearInterval(interval);
                 }
                 console.log("step");
 
-                phi += Math.PI * 0.002;
+                phi += Math.PI * 0.01;
                 // // console.log(phi)
                 cube.rotate_xyz(phi, 1);
                 cube.rotate_xyz(
