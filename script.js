@@ -110,7 +110,7 @@ function main() {
                 }
                 console.log("step");
 
-                phi += Math.PI * 0.01;
+                phi += Math.PI * 0.005;
                 // // console.log(phi)
                 cube.rotate_xyz(phi, 1);
                 cube.rotate_xyz(
@@ -149,7 +149,7 @@ function make_cube(canvas_elem) {
         [100, 100, 100], // front top right
         [-100, 100, 100] // front top left
     ];
-    const scale = 0.5;
+    const scale = 0.3;
     for (let i in template_points) {
         template_points[i] = new Vector(
             template_points[i][0] * scale, 
