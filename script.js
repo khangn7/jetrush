@@ -2,7 +2,7 @@
 https://docs.google.com/document/d/1O4p7wp5PDOXYR603c-Hvf3A5mCqCEAJT4kB97HY5n2I/edit?usp=sharing
 
 using the canvas as a cartesian plane
-right handed coordinates CHANGE TO LEFT ASAP
+right handed coordinates
 
 when displaying a 3d vector, we'll only use it's x and y values
 
@@ -15,8 +15,7 @@ import {
 } from "./lib/coords.js";
 
 import {
-    Vector,
-    map_angle_to_range
+    Vector
 } from "./lib/math_functions.js";
 
 import {
@@ -62,18 +61,20 @@ function main() {
     const paintframe = (things /* array of Shapes */) => {
         clearCanvas(canvas_elem);
         for (let i in things) {
-            // things[i].draw_surfaces();
-            things[i].draw_lines();
+            things[i].draw_surfaces();
+            // things[i].draw_lines();
         }
     };
 
     
     // line1.worldspace_position_set(0, 0, -200)
-    cube.worldspace_position_set(0, 0, -200)
-    console.log(cube.display_coord_obj)
 
-    // // cube.rotate(1, 1);
-    // // // cube.rotate(1, 0, true);
+    cube.worldspace_position_set(0, 0, -200)
+    // // console.log(cube.display_coord_obj)
+    // console.log(cube.furthest_z);
+
+    // // // cube.rotate(1, 1);
+    // // // // cube.rotate(1, 0, true);
 
     // paintframe(display_things);
 
@@ -88,7 +89,6 @@ function main() {
     let running = false;
 
     let interval;
-    let steps = 0;
 
     document.addEventListener("click", ()=> {
         if (!running) {
@@ -103,17 +103,19 @@ function main() {
 
                 // line1.worldspace_move(0, 0, 1);
                 cube.worldspace_move(0, 0, 1);
-                steps++;
-                console.log("step", steps);
+                if (cube.furthest_z > -5) {
+                    clearInterval(interval);
+                }
+                console.log("step");
 
-                // phi += Math.PI * 0.002;
+                phi += Math.PI * 0.002;
                 // // console.log(phi)
-                // cube.rotate_xyz(phi, 1);
-                // cube.rotate_xyz(
-                //     phi,
-                //     0,
-                //     true
-                // );
+                cube.rotate_xyz(phi, 1);
+                cube.rotate_xyz(
+                    phi,
+                    0,
+                    true
+                );
 
                 paintframe(display_things);
         
