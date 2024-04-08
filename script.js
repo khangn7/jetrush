@@ -66,6 +66,8 @@ function main() {
         }
     };
 
+    // const ctx = canvas_elem.getContext("2d");
+    // ctx.imageSmoothingEnabled = false;
     
     // line1.worldspace_position_set(0, 0, -200)
 
@@ -147,7 +149,7 @@ function make_cube(canvas_elem) {
         [100, 100, 100], // front top right
         [-100, 100, 100] // front top left
     ];
-    const scale = 0.2;
+    const scale = 0.5;
     for (let i in template_points) {
         template_points[i] = new Vector(
             template_points[i][0] * scale, 
