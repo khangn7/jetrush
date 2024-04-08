@@ -68,7 +68,7 @@ function main() {
     };
 
     
-    cube.worldspace_position_set(0, 0, -100)
+    cube.worldspace_position_set(0, 0, -1000)
     // console.log(cube.display_coord_obj)
 
     // cube.rotate(1, 1);
@@ -99,14 +99,14 @@ function main() {
                 //     phi -= Math.PI * 0.001;
                 // }
 
-                // cube.worldspace_move(0, 0, -0.1);
+                cube.worldspace_move(0, 0, 1);
                 
 
 
                 phi += Math.PI * 0.002;
                 // console.log(phi)
-                cube.rotate(phi, 1);
-                cube.rotate(
+                cube.rotate_xyz(phi, 1);
+                cube.rotate_xyz(
                     phi,
                     0,
                     true
