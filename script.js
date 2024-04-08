@@ -66,6 +66,8 @@ function main() {
         }
     };
 
+    // const ctx = canvas_elem.getContext("2d");
+    // ctx.imageSmoothingEnabled = false;
     
     // line1.worldspace_position_set(0, 0, -200)
 
@@ -102,20 +104,15 @@ function main() {
                 // }
 
                 // line1.worldspace_move(0, 0, 1);
-                cube.worldspace_move(0, 0, 1);
+                // cube.worldspace_move(0, 0, 1);
                 if (cube.furthest_z > -5) {
                     clearInterval(interval);
                 }
                 console.log("step");
 
-                phi += Math.PI * 0.002;
-                // // console.log(phi)
-                cube.rotate_xyz(phi, 1);
-                cube.rotate_xyz(
-                    phi,
-                    0,
-                    true
-                );
+                phi += Math.PI * 0.005;
+                cube.rotate_around_vector(phi, 0.5, 0);
+                // cube.rotate_xyz(phi, 1);
 
                 paintframe(display_things);
         
@@ -147,7 +144,7 @@ function make_cube(canvas_elem) {
         [100, 100, 100], // front top right
         [-100, 100, 100] // front top left
     ];
-    const scale = 0.2;
+    const scale = 0.5;
     for (let i in template_points) {
         template_points[i] = new Vector(
             template_points[i][0] * scale, 
