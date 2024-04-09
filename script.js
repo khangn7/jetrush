@@ -40,24 +40,26 @@ function main() {
         canvas_elem.height--;
     }
 
-    let cube = make_cube(canvas_elem);
+    let map_y = -25;
 
-    let line_coords = new Line_coords([
-        new Vector(0, -50, 0),
-        new Vector(100, -50, 100)
-    ]);
-    let line1 = new Shape(canvas_elem, line_coords, Line_coords);
-    // line_coords = new Line_coords([
-    //     new Vector(0, 0, 0),
-    //     new Vector(0, -100, 0)
-    // ]);
-    // let line2 = new Shape(canvas_elem, line_coords, Line_coords);
+    // let ground = make_cuboid(canvas_elem, 200, 1500, 0, map_y - 100, -820);
+    // ground.rotate_xyz(Math.PI * 0.5, 0);
+    // ground.rotate_xyz(Math.PI * 0.5, 2, true);
+
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "burlyslateblue";
+    ctx.beginPath();
+    ctx.rect(20, 20, 150, 100);
+    ctx.stroke();
+
+    let display_things = [];
+
+    let row_start_z = -1500;
+    let row = rowOfCuboids(canvas_elem, map_y, -1500, 10, 10, 50)
+    display_things = display_things.concat(row);
+
     
-    let display_things = {
-        // "line1": line1, 
-        // "line2": line2, 
-        "cube": cube
-    };
+
     const paintframe = (things /* array of Shapes */) => {
         clearCanvas(canvas_elem);
         for (let i in things) {
@@ -66,27 +68,11 @@ function main() {
         }
     };
 
-    // const ctx = canvas_elem.getContext("2d");
-    // ctx.imageSmoothingEnabled = false;
-    
-    // line1.worldspace_position_set(0, 0, -200)
+    paintframe(display_things);
 
-    cube.worldspace_position_set(0, 0, -200)
-    // // console.log(cube.display_coord_obj)
-    // console.log(cube.furthest_z);
-
-    // // // cube.rotate(1, 1);
-    // // // // cube.rotate(1, 0, true);
-
-    // paintframe(display_things);
-
-    // return
-
+    return;
 
     const FPS = 60;
-
-    const SPEED = 100;
-    let phi = 0, theta = 0; 
 
     let running = false;
 
@@ -97,27 +83,14 @@ function main() {
             running = true
             interval = setInterval(() => {
 
-                // if (phi > 3.14) {
-                //     phi += 0;
-                // } else {
-                //     phi -= Math.PI * 0.001;
-                // }
-
-                // line1.worldspace_move(0, 0, 1);
-                // cube.worldspace_move(0, 0, 1);
-                if (cube.furthest_z > -5) {
-                    clearInterval(interval);
+                for (let i = 0; i < row.length; i++) {
+                    row[i].worldspace_move(0, 0, 5);
                 }
-                console.log("step");
-
-                phi += Math.PI * 0.005;
-                // // console.log(phi)
-                cube.rotate_xyz(phi, 1);
-                cube.rotate_xyz(
-                    phi,
-                    0,
-                    true
-                );
+                if (row[1].world_pos.z > -10) {
+                    for (let i = 0; i < row.length; i++) {
+                        row[i].worldspace_position_set()
+                    }
+                }
 
                 paintframe(display_things);
         
@@ -136,57 +109,86 @@ function main() {
 
 main();
 
-function make_cube(canvas_elem) {
+/**
+ * 
+ * @param {*} canvas_elem 
+ * @param {Number} width 
+ * @param {Number} height 
+ * @param {Number} x 
+ * @param {Number} y 
+ * @param {Number} z 
+ * @returns {CubeShape}
+ */
+function make_cuboid(canvas_elem, width, height, x, y, z) {
     let template_points = [
         // [x, y, z]
-        [-100, -100, -100], // back bottom left
-        [100, -100, -100], // back bottom right
-        [100, 100, -100], // back top right
-        [-100, 100, -100], // back top left
+        [-1, -1, -1], // back bottom left
+        [1, -1, -1], // back bottom right
+        
+        [1, 1, -1], // back top right
+        [-1, 1, -1], // back top left
 
-        [-100, -100, 100], // front bottom left
-        [100, -100, 100], // front bottom right
-        [100, 100, 100], // front top right
-        [-100, 100, 100] // front top left
+        [-1, -1, 1], // front bottom left
+        [1, -1, 1], // front bottom right
+
+        [1, 1, 1], // front top right
+        [-1, 1, 1] // front top left
     ];
-    const scale = 0.3;
+    const halfwidth = 0.5 * width;
+    const halfheight = 0.5 * height;
     for (let i in template_points) {
         template_points[i] = new Vector(
-            template_points[i][0] * scale, 
-            template_points[i][1] * scale, 
-            template_points[i][2] * scale
+            template_points[i][0] * halfwidth, 
+            template_points[i][1] * halfheight, 
+            template_points[i][2] * halfwidth
         );
     }
     const cube_coords = new Cube_coords(template_points);
 
     const cube = new CubeShape(canvas_elem, cube_coords);
 
+    cube.worldspace_position_set(x, y, z)
+
     return cube;
 
 }
 
-function make_grid(canvas_elem) {
-    let x_square_count = 10;
-    let z_square_count = 10;
-
-    // _points=false, x_range, z_range, y, x_square_count, z_square_count
-    const grid_coords = new Grid_coords(false, 100, 10000, -100, x_square_count, z_square_count);
-
-    const grid = new GridShape(
-        canvas_elem,
-        grid_coords.points, 
-        grid_coords.lines,
-        Grid_coords,
-        true,// dont_hardcopy. here this is used so references in s_lines can be used.
-             // as in, so we only need to change values of s_points and s_lines values point to them
-        {
-            x_square_count: x_square_count,
-            z_square_count: z_square_count
-        }
-    );
-
-    return grid;
+function rowOfCuboids(canvas_elem, row_y, row_z, amount, width, max_height) {
+    let x = - (amount/2) * (2 * width) +  width;
+    let cuboids = [];
+    let flip = 0;
+    for (let i = 0; i < amount; i++) {
+        let height = Math.random() * max_height;
+        height *= flip ? 1 : 0.4;
+        flip = flip ? 0 : 1;
+        cuboids.push(make_cuboid(canvas_elem, width, height, x, row_y + 0.5*height, row_z))
+        x += width * 2;
+    }
+    return cuboids;
 }
+
+// function make_grid(canvas_elem) {
+//     let x_square_count = 10;
+//     let z_square_count = 10;
+
+//     // _points=false, x_range, z_range, y, x_square_count, z_square_count
+//     const grid_coords = new Grid_coords(false, 100, 10000, -100, x_square_count, z_square_count);
+
+//     const grid = new GridShape(
+//         canvas_elem,
+//         grid_coords.points, 
+//         grid_coords.lines,
+//         Grid_coords,
+//         true,// dont_hardcopy. here this is used so references in s_lines can be used.
+//              // as in, so we only need to change values of s_points and s_lines values point to them
+//         {
+//             x_square_count: x_square_count,
+//             z_square_count: z_square_count
+//         }
+//     );
+
+//     return grid;
+// }
 
 function clearCanvas(canvas) {
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
