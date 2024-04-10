@@ -10,8 +10,6 @@ when displaying a 3d vector, we'll only use it's x and y values
 
 import { 
     Cube_coords,
-    // Grid_coords,
-    Line_coords
 } from "./lib/coords.js";
 
 import {
@@ -19,10 +17,15 @@ import {
 } from "./lib/math_functions.js";
 
 import {
-    Shape,
-    GridShape,
     CubeShape
 } from "./lib/shape.js";
+
+import {
+    make_cuboid,
+    rowOfCuboids,
+    setRowPos,
+    changeRowPos
+} from "./lib/game.js"
 
 
 
@@ -46,31 +49,55 @@ function main() {
     // ground.rotate_xyz(Math.PI * 0.5, 0);
     // ground.rotate_xyz(Math.PI * 0.5, 2, true);
 
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "burlyslateblue";
-    ctx.beginPath();
-    ctx.rect(20, 20, 150, 100);
-    ctx.stroke();
+
+    const ctx = canvas_elem.getContext("2d");
+
+    const ground = () => {
+        ctx.beginPath();
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, canvas_elem.clientHeight * 0.5, canvas_elem.clientWidth, canvas_elem.clientHeight*0.5);
+        ctx.stroke();
+    }
 
     let display_things = [];
 
-    let row_start_z = -1500;
-    let row = rowOfCuboids(canvas_elem, map_y, -1500, 10, 10, 50)
-    display_things = display_things.concat(row);
+    const row_start_z = -1500;
+    const building_width = 30;
+    const building_height = 200; // max
+    const row_amount = 10
+    const rows = [];
+    const distance_between_rows = building_width * 3;
+    for (let i = 0; i < 5; i++) {
+        let row = rowOfCuboids(
+            canvas_elem, 
+            map_y, 
+            row_start_z - i * distance_between_rows, 
+            row_amount, 
+            building_width, 
+            building_height
+        );
+        for (let j = 0; j < row_amount; j++) {
+            
+        }
+    }
+    
+    display_things = display_things.concat(rows);
 
     
 
     const paintframe = (things /* array of Shapes */) => {
         clearCanvas(canvas_elem);
+        ground();
         for (let i in things) {
-            things[i].draw_surfaces();
-            // things[i].draw_lines();
+            for (let j in things[i]) {
+                things[i][j].draw_surfaces();  
+            }
         }
     };
 
-    paintframe(display_things);
+    // paintframe(display_things);
 
-    return;
+    // return;
 
     const FPS = 60;
 
@@ -83,14 +110,12 @@ function main() {
             running = true
             interval = setInterval(() => {
 
-                for (let i = 0; i < row.length; i++) {
-                    row[i].worldspace_move(0, 0, 5);
+                for (let i = 0; i < rows.length; i++) {
+                    changeRowPos(0, 0, 1)
                 }
-                if (row[1].world_pos.z > -10) {
-                    for (let i = 0; i < row.length; i++) {
-                        row[i].worldspace_position_set()
-                    }
-                }
+                // if (row[0].world_pos.z > -10) {
+                //     setRowPos(row, -30 * 2, map_y, row_start_z)
+                // }
 
                 paintframe(display_things);
         
@@ -109,63 +134,9 @@ function main() {
 
 main();
 
-/**
- * 
- * @param {*} canvas_elem 
- * @param {Number} width 
- * @param {Number} height 
- * @param {Number} x 
- * @param {Number} y 
- * @param {Number} z 
- * @returns {CubeShape}
- */
-function make_cuboid(canvas_elem, width, height, x, y, z) {
-    let template_points = [
-        // [x, y, z]
-        [-1, -1, -1], // back bottom left
-        [1, -1, -1], // back bottom right
-        
-        [1, 1, -1], // back top right
-        [-1, 1, -1], // back top left
 
-        [-1, -1, 1], // front bottom left
-        [1, -1, 1], // front bottom right
 
-        [1, 1, 1], // front top right
-        [-1, 1, 1] // front top left
-    ];
-    const halfwidth = 0.5 * width;
-    const halfheight = 0.5 * height;
-    for (let i in template_points) {
-        template_points[i] = new Vector(
-            template_points[i][0] * halfwidth, 
-            template_points[i][1] * halfheight, 
-            template_points[i][2] * halfwidth
-        );
-    }
-    const cube_coords = new Cube_coords(template_points);
 
-    const cube = new CubeShape(canvas_elem, cube_coords);
-
-    cube.worldspace_position_set(x, y, z)
-
-    return cube;
-
-}
-
-function rowOfCuboids(canvas_elem, row_y, row_z, amount, width, max_height) {
-    let x = - (amount/2) * (2 * width) +  width;
-    let cuboids = [];
-    let flip = 0;
-    for (let i = 0; i < amount; i++) {
-        let height = Math.random() * max_height;
-        height *= flip ? 1 : 0.4;
-        flip = flip ? 0 : 1;
-        cuboids.push(make_cuboid(canvas_elem, width, height, x, row_y + 0.5*height, row_z))
-        x += width * 2;
-    }
-    return cuboids;
-}
 
 // function make_grid(canvas_elem) {
 //     let x_square_count = 10;
