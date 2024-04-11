@@ -48,7 +48,7 @@ function main() {
 
     const clip_z = -20;
 
-    const building_speed = 3;
+    const building_speed = 7;
     const row_start_z = -1000;
     const building_width = 30;
     const building_height = 200; // max
@@ -83,9 +83,9 @@ function main() {
         }
     };
 
-    paintframe(display_things); 
+    // paintframe(display_things); 
 
-    return;
+    // return;
 
     const FPS = 60;
 
