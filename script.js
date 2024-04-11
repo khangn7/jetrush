@@ -8,23 +8,8 @@ when displaying a 3d vector, we'll only use it's x and y values
 
 */
 
-import { 
-    Cube_coords,
-} from "./lib/coords.js";
-
 import {
-    Vector
-} from "./lib/math_functions.js";
-
-import {
-    CubeShape
-} from "./lib/shape.js";
-
-import {
-    make_cuboid,
-    rowOfCuboids,
-    setRowPos,
-    changeRowPos
+    rowOfBuildings,
 } from "./lib/game.js"
 
 
@@ -61,43 +46,46 @@ function main() {
 
     let display_things = [];
 
-    const row_start_z = -1500;
+    const clip_z = -20;
+
+    const building_speed = 3;
+    const row_start_z = -1000;
     const building_width = 30;
     const building_height = 200; // max
     const row_amount = 10
-    const rows = [];
-    const distance_between_rows = building_width * 3;
+    const buildings = [];
+    const distance_between_rows = building_width * 5;
     for (let i = 0; i < 5; i++) {
-        let row = rowOfCuboids(
+        let row = rowOfBuildings(
             canvas_elem, 
             map_y, 
-            row_start_z - i * distance_between_rows, 
-            row_amount, 
+            row_start_z + i * distance_between_rows, 
+            row_amount + Math.round(Math.random()), 
             building_width, 
             building_height
         );
         for (let j = 0; j < row_amount; j++) {
-            
+            buildings.push(row[j])
         }
     }
     
-    display_things = display_things.concat(rows);
+    display_things = display_things.concat(buildings);
 
     
 
     const paintframe = (things /* array of Shapes */) => {
         clearCanvas(canvas_elem);
         ground();
+        // sort shapes by z
+        things.sort((a, b) => a.world_pos.z - b.world_pos.z)
         for (let i in things) {
-            for (let j in things[i]) {
-                things[i][j].draw_surfaces();  
-            }
+            things[i].draw_surfaces();
         }
     };
 
-    // paintframe(display_things);
+    paintframe(display_things); 
 
-    // return;
+    return;
 
     const FPS = 60;
 
@@ -110,12 +98,16 @@ function main() {
             running = true
             interval = setInterval(() => {
 
-                for (let i = 0; i < rows.length; i++) {
-                    changeRowPos(0, 0, 1)
+                for (let i = 0; i < buildings.length; i++) {
+                    buildings[i].worldspace_move(0, 0, building_speed);
+                    if (buildings[i].world_pos.z > clip_z) {
+                        buildings[i].worldspace_position_set(
+                            buildings[i].world_pos.x, 
+                            map_y + buildings[i].height * 0.5, 
+                            row_start_z
+                        )
+                    }
                 }
-                // if (row[0].world_pos.z > -10) {
-                //     setRowPos(row, -30 * 2, map_y, row_start_z)
-                // }
 
                 paintframe(display_things);
         
