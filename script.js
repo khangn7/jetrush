@@ -98,7 +98,7 @@ function main() {
 
     paintframe(); 
 
-    return;
+    // return;
 
     const FPS = 60;
 
