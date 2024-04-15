@@ -44,46 +44,59 @@ function main() {
         ctx.stroke();
     }
 
-    let display_things = [];
-
     const clip_z = -20;
 
     const building_speed = 3;
-    const row_start_z = -1000;
+    const start_z = -100;
+    const row_x = 100;
     const building_width = 30;
     const building_height = 200; // max
-    const row_amount = 10
+    const row_amount = 3;
+
     const buildings = [];
-    const distance_between_rows = building_width * 5;
-    for (let i = 0; i < 5; i++) {
-        let row = rowOfBuildings(
-            canvas_elem, 
-            map_y, 
-            row_start_z + i * distance_between_rows, 
-            row_amount + Math.round(Math.random()), 
-            building_width, 
-            building_height
-        );
-        for (let j = 0; j < row_amount; j++) {
-            buildings.push(row[j])
-        }
-    }
+    buildings.push(rowOfBuildings(
+        canvas_elem,
+        row_x,
+        map_y,
+        start_z,
+        row_amount,
+        building_width,
+        building_height
+    ))
+    // const distance_between_rows = building_width * 5;
+    // for (let i = 0; i < 5; i++) {
+    //     let row = rowOfBuildings(
+    //         canvas_elem, 
+    //         map_y, 
+    //         row_start_z + i * distance_between_rows, 
+    //         row_amount + Math.round(Math.random()), 
+    //         building_width, 
+    //         building_height
+    //     );
+    //     for (let j = 0; j < row_amount; j++) {
+    //         buildings.push(row[j])
+    //     }
+    // }
     
-    display_things = display_things.concat(buildings);
-
     
 
-    const paintframe = (things /* array of Shapes */) => {
+    const paintframe = () => {
         clearCanvas(canvas_elem);
+
         ground();
-        // sort shapes by z
-        things.sort((a, b) => a.world_pos.z - b.world_pos.z)
-        for (let i in things) {
-            things[i].draw_surfaces();
+
+        // sort buildings by z
+        // buildings.sort((a, b) => a.world_pos.z - b.world_pos.z)
+        for (let i in buildings) {
+            let row = buildings[i];
+            for (let j in row) {
+                row[j].draw_surfaces();
+            }
         }
+
     };
 
-    paintframe(display_things); 
+    paintframe(); 
 
     return;
 
