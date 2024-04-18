@@ -8,11 +8,11 @@ when displaying a 3d vector, we'll only use it's x and y values
 
 */
 
-import {
-    rowOfBuildings,
+import { 
+    blockOfBuildings,
 } from "./lib/game.js"
 
-
+const Z_CLIP = -20;
 
 function main() {
 
@@ -28,74 +28,52 @@ function main() {
         canvas_elem.height--;
     }
 
-    let map_y = -25;
-
-    // let ground = make_cuboid(canvas_elem, 200, 1500, 0, map_y - 100, -820);
-    // ground.rotate_xyz(Math.PI * 0.5, 0);
-    // ground.rotate_xyz(Math.PI * 0.5, 2, true);
+    const map_y = -50;
 
 
     const ctx = canvas_elem.getContext("2d");
 
-    const ground = () => {
-        ctx.beginPath();
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, canvas_elem.clientHeight * 0.5, canvas_elem.clientWidth, canvas_elem.clientHeight*0.5);
-        ctx.stroke();
-    }
+    // const ground = () => {
+    //     ctx.beginPath();
+    //     ctx.fillStyle = "black";
+    //     ctx.fillRect(0, canvas_elem.clientHeight * 0.5, canvas_elem.clientWidth, canvas_elem.clientHeight*0.5);
+    //     ctx.stroke();
+    // }
 
     const clip_z = -20;
 
     const building_speed = 3;
-    const start_z = -500;
-    const row_x = 100;
-    const building_width = 30;
+    const start_z = -600; // furthest building z
+    const building_width = 60;
     const building_height = 200; // max
-    const row_amount = 3;
+    const row_length = 5;
 
-    const buildings = [];
-    buildings.push(rowOfBuildings(
+    // right_buildings = [row1, row2, row3], rows go along z axis
+    // rows must be ordered most positive x to 0
+    // in each row, buildings must be ordered most negative z to most positive z
+    // this is must it's the display order
+    const right_row_count = 3;
+    const buildings = new blockOfBuildings(
         canvas_elem,
-        row_x,
-        map_y,
-        start_z,
-        row_amount,
-        building_width,
-        building_height
-    ))
-    // const distance_between_rows = building_width * 5;
-    // for (let i = 0; i < 5; i++) {
-    //     let row = rowOfBuildings(
-    //         canvas_elem, 
-    //         map_y, 
-    //         row_start_z + i * distance_between_rows, 
-    //         row_amount + Math.round(Math.random()), 
-    //         building_width, 
-    //         building_height
-    //     );
-    //     for (let j = 0; j < row_amount; j++) {
-    //         buildings.push(row[j])
-    //     }
-    // }
-    
+        {
+            right_row_count: right_row_count,
+            row_length: row_length,
+            building_width:building_width,
+            building_height: building_height,
+            map_y: map_y,
+            start_z: start_z,
+        }
+    ); 
     
 
     const paintframe = () => {
         clearCanvas(canvas_elem);
 
-        ground();
-
-        // sort buildings by z
-        // buildings.sort((a, b) => a.world_pos.z - b.world_pos.z)
-        for (let i in buildings) {
-            let row = buildings[i];
-            for (let j in row) {
-                row[j].draw_surfaces();
-            }
-        }
+        // draw buildings
+        buildings.draw();
 
     };
-
+    buildings.move(-50, 0, 0)
     paintframe(); 
 
     return;
@@ -106,21 +84,22 @@ function main() {
 
     let interval;
 
+    // GAME LOOP
     document.addEventListener("click", ()=> {
         if (!running) {
             running = true
             interval = setInterval(() => {
 
-                for (let i = 0; i < buildings.length; i++) {
-                    buildings[i].worldspace_move(0, 0, building_speed);
-                    if (buildings[i].world_pos.z > clip_z) {
-                        buildings[i].worldspace_position_set(
-                            buildings[i].world_pos.x, 
-                            map_y + buildings[i].height * 0.5, 
-                            row_start_z
-                        )
+                // move buildings
+                moveBuildings(left_buildings, 0, 0, 1)
+                moveBuildings(right_buildings, 0, 0, 1)
+
+                if (buildings[0][0].z > Z_CLIP) {
+                    for (let i in left_buildings) {
+
                     }
                 }
+                
 
                 paintframe(display_things);
         
