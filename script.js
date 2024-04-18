@@ -12,7 +12,7 @@ import {
     blockOfBuildings,
 } from "./lib/game.js"
 
-const Z_CLIP = -20;
+const Z_CLIP = -100;
 
 function main() {
 
@@ -43,7 +43,7 @@ function main() {
     const clip_z = -20;
 
     const building_speed = 3;
-    const start_z = -600; // furthest building z
+    const start_z = -500; // furthest building z
     const building_width = 60;
     const building_height = 200; // max
     const row_length = 5;
@@ -52,7 +52,7 @@ function main() {
     // rows must be ordered most positive x to 0
     // in each row, buildings must be ordered most negative z to most positive z
     // this is must it's the display order
-    const right_row_count = 3;
+    const right_row_count = 10;
     const buildings = new blockOfBuildings(
         canvas_elem,
         {
@@ -70,13 +70,12 @@ function main() {
         clearCanvas(canvas_elem);
 
         // draw buildings
-        buildings.draw();
+        buildings.draw() ;
 
     };
-    buildings.move(-50, 0, 0)
     paintframe(); 
 
-    return;
+    // return;
 
     const FPS = 60;
 
@@ -91,17 +90,16 @@ function main() {
             interval = setInterval(() => {
 
                 // move buildings
-                moveBuildings(left_buildings, 0, 0, 1)
-                moveBuildings(right_buildings, 0, 0, 1)
-
-                if (buildings[0][0].z > Z_CLIP) {
-                    for (let i in left_buildings) {
-
-                    }
+                let lb = buildings.left_buildings
+                let first_z = lb[0][row_length - 1].world_pos.z;
+                console.log(first_z)
+                if (first_z < Z_CLIP) {
+                    buildings.move(0, 0, 1)
                 }
+
                 
 
-                paintframe(display_things);
+                paintframe();
         
             }, 1000/FPS);
 
