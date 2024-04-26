@@ -40,7 +40,7 @@ function main() {
     const building_width = 60;
     const building_height = 200; // max
     const row_length = 5;
-    const row_count = 5;
+    const row_count = 10;
     const buildings = new blockOfBuildings(
         canvas_elem,
         {
