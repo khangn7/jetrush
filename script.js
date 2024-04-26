@@ -31,15 +31,12 @@ function main() {
     const map_y = -50;
 
 
-    const ctx = canvas_elem.getContext("2d");
 
-    const clip_z = -20;
-
-    const building_speed = 3;
-    const start_z = -1000; // furthest building z
+    const building_speed = 7;
+    const start_z = -500; // furthest building z
     const building_width = 60;
     const building_height = 200; // max
-    const row_length = 5;
+    const row_length = 20;
     const row_count = 10;
     const buildings = new blockOfBuildings(
         canvas_elem,
@@ -61,8 +58,14 @@ function main() {
         buildings.draw() ;
 
     };
-    paintframe(); 
+    paintframe();
 
+    // setTimeout(()=>{
+    //     buildings.advanceColumn();
+    //     console.log(buildings.rows)
+    //     paintframe();
+
+    // }, 2000);
     // return;
 
     const FPS = 60;
@@ -77,7 +80,17 @@ function main() {
             running = true
             interval = setInterval(() => {
 
-                buildings.move(0, 0, 5);
+                let row_length = buildings.rows[0].length;
+                // console.log("rl", row_length, buildings.rows)
+                
+                let closest_z = buildings.rows[0][row_length - 1].world_pos.z;
+                // console.log(closest_z)
+
+                if (closest_z < Z_CLIP) {
+                    buildings.move(0, 0, building_speed);
+                } else {
+                    buildings.advanceColumn();
+                }
 
                 paintframe();
         
