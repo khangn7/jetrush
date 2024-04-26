@@ -33,39 +33,27 @@ function main() {
 
     const ctx = canvas_elem.getContext("2d");
 
-    // const ground = () => {
-    //     ctx.beginPath();
-    //     ctx.fillStyle = "black";
-    //     ctx.fillRect(0, canvas_elem.clientHeight * 0.5, canvas_elem.clientWidth, canvas_elem.clientHeight*0.5);
-    //     ctx.stroke();
-    // }
-
     const clip_z = -20;
 
     const building_speed = 3;
-    const start_z = -500; // furthest building z
+    const start_z = -1000; // furthest building z
     const building_width = 60;
     const building_height = 200; // max
     const row_length = 5;
-
-    // right_buildings = [row1, row2, row3], rows go along z axis
-    // rows must be ordered most positive x to 0
-    // in each row, buildings must be ordered most negative z to most positive z
-    // this is must it's the display order
-    const right_row_count = 10;
+    const row_count = 10;
     const buildings = new blockOfBuildings(
         canvas_elem,
         {
-            right_row_count: right_row_count,
+            row_count: row_count,
             row_length: row_length,
             building_width:building_width,
             building_height: building_height,
+            center_x: 0,
             map_y: map_y,
             start_z: start_z,
         }
     ); 
     
-
     const paintframe = () => {
         clearCanvas(canvas_elem);
 
@@ -89,15 +77,7 @@ function main() {
             running = true
             interval = setInterval(() => {
 
-                // move buildings
-                let lb = buildings.left_buildings
-                let first_z = lb[0][row_length - 1].world_pos.z;
-                console.log(first_z)
-                if (first_z < Z_CLIP) {
-                    buildings.move(0, 0, 1)
-                }
-
-                
+                buildings.move(0, 0, 5);
 
                 paintframe();
         
