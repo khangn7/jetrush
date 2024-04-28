@@ -28,14 +28,14 @@ function main() {
         canvas_elem.height--;
     }
 
-    const map_y = -50;
+    const map_y = -80;
 
 
 
-    const building_speed = 7;
+    const building_speed = 6;
     const start_z = -500; // furthest building z
     const building_width = 60;
-    const building_height = 200; // max
+    const building_height = 300; // max
     const row_length = 20;
     const row_count = 10;
     const buildings = new blockOfBuildings(
