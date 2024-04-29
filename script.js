@@ -28,16 +28,16 @@ function main() {
         canvas_elem.height--;
     }
 
-    const map_y = -80;
+    const map_y = -100;
 
 
 
-    const BUILDING_SPEED = 5; // how fast buildings move towards user
+    const BUILDING_SPEED = 10; // how fast buildings move towards user
     const block_x_center = 0;
     const start_z = -1000; // furthest building z
     const building_width = 60;
     const building_height = 300; // max
-    const row_length = 15;
+    const row_length = 20;
     const row_count = 10;
 
 
@@ -83,21 +83,24 @@ function main() {
         left: false
     };
     document.addEventListener("keydown", (e) => {
-        if (e.code == "ArrowRight") {
+        let k = e.key;
+        if (k == "ArrowRight" || k == "d") {
             moveKeys.right = true
-        } else if (e.code == "ArrowLeft") {
+        } else if (k == "ArrowLeft" || k == "a") {
             moveKeys.left = true
         }
     });
     document.addEventListener("keyup", (e) => {
-        if (e.code == "ArrowRight") {
+        let k = e.key;
+        if (k == "ArrowRight" || k == "d") {
             moveKeys.right = false
-        } else if (e.code == "ArrowLeft") {
+        } else if (k == "ArrowLeft" || k == "a") {
             moveKeys.left = false
         }
     });
     // return;
 
+    let leftright_track = 0;
     // GAME LOOP
     document.addEventListener("click", ()=> {
         if (!running) {
@@ -117,10 +120,17 @@ function main() {
                 // move left and right
                 if (moveKeys.right) {
                     buildings.move(-MOVE_SPEED, 0, 0);
+                    leftright_track -= MOVE_SPEED;
+
+                    if (leftright_track < -building_width) {
+                        // buildings.
+                    }
                 }
                 if (moveKeys.left) {
                     buildings.move(MOVE_SPEED, 0, 0);
+                    leftright_track += MOVE_SPEED;
                 }
+                
 
 
                 paintframe();
