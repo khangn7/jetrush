@@ -32,12 +32,13 @@ function main() {
 
 
 
-    const building_speed = 6;
-    const start_z = -500; // furthest building z
+    const BUILDING_SPEED = 5; // how fast buildings move towards user
+    const block_x_center = 100;
+    const start_z = -2000; // furthest building z
     const building_width = 60;
     const building_height = 300; // max
-    const row_length = 20;
-    const row_count = 10;
+    const row_length = 30;
+    const row_count = 1;
     const buildings = new blockOfBuildings(
         canvas_elem,
         {
@@ -45,7 +46,7 @@ function main() {
             row_length: row_length,
             building_width:building_width,
             building_height: building_height,
-            center_x: 0,
+            center_x: block_x_center,
             map_y: map_y,
             start_z: start_z,
         }
@@ -61,18 +62,39 @@ function main() {
     paintframe();
 
     // setTimeout(()=>{
-    //     buildings.advanceColumn();
+    //     buildings.addRightRow();
     //     console.log(buildings.rows)
     //     paintframe();
 
     // }, 2000);
     // return;
 
-    const FPS = 60;
+    const FPS = 75;
 
     let running = false;
 
     let interval;
+
+    const MOVE_SPEED = 2; // how fast buildings move left/right
+    const moveKeys = {
+        right: false,
+        left: false
+    };
+    document.addEventListener("keydown", (e) => {
+        if (e.code == "ArrowRight") {
+            moveKeys.right = true
+        } else if (e.code == "ArrowLeft") {
+            moveKeys.left = true
+        }
+    });
+    document.addEventListener("keyup", (e) => {
+        if (e.code == "ArrowRight") {
+            moveKeys.right = false
+        } else if (e.code == "ArrowLeft") {
+            moveKeys.left = false
+        }
+    });
+    // return;
 
     // GAME LOOP
     document.addEventListener("click", ()=> {
@@ -81,16 +103,23 @@ function main() {
             interval = setInterval(() => {
 
                 let row_length = buildings.rows[0].length;
-                // console.log("rl", row_length, buildings.rows)
-                
                 let closest_z = buildings.rows[0][row_length - 1].world_pos.z;
-                // console.log(closest_z)
 
+                // move buildings towards user
                 if (closest_z < Z_CLIP) {
-                    buildings.move(0, 0, building_speed);
+                    buildings.move(0, 0, -BUILDING_SPEED);
                 } else {
                     buildings.advanceColumn();
                 }
+
+                // move left and right
+                if (moveKeys.right) {
+                    buildings.move(-MOVE_SPEED, 0, 0);
+                }
+                if (moveKeys.left) {
+                    buildings.move(MOVE_SPEED, 0, 0);
+                }
+
 
                 paintframe();
         
