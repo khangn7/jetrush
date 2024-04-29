@@ -33,12 +33,14 @@ function main() {
 
 
     const BUILDING_SPEED = 5; // how fast buildings move towards user
-    const block_x_center = 100;
-    const start_z = -2000; // furthest building z
+    const block_x_center = 0;
+    const start_z = -1000; // furthest building z
     const building_width = 60;
     const building_height = 300; // max
-    const row_length = 30;
-    const row_count = 1;
+    const row_length = 15;
+    const row_count = 10;
+
+
     const buildings = new blockOfBuildings(
         canvas_elem,
         {
@@ -107,7 +109,7 @@ function main() {
 
                 // move buildings towards user
                 if (closest_z < Z_CLIP) {
-                    buildings.move(0, 0, -BUILDING_SPEED);
+                    buildings.move(0, 0, BUILDING_SPEED);
                 } else {
                     buildings.advanceColumn();
                 }
