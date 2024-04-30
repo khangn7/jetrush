@@ -28,16 +28,16 @@ function main() {
         canvas_elem.height--;
     }
 
-    const map_y = -100;
+    const map_y = -120;
 
 
 
-    const BUILDING_SPEED = 10; // how fast buildings move towards user
+    const BUILDING_SPEED = 16; // how fast buildings move towards user
     const block_x_center = 0;
     const start_z = -1000; // furthest building z
     const building_width = 60;
     const building_height = 300; // max
-    const row_length = 20;
+    const row_length = 30;
     const row_count = 10;
 
 
@@ -64,20 +64,19 @@ function main() {
     paintframe();
 
     // setTimeout(()=>{
-    //     buildings.addRightRow();
+    //     buildings.addLeftRow();
     //     console.log(buildings.rows)
     //     paintframe();
 
     // }, 2000);
     // return;
 
-    const FPS = 75;
+    const FPS = 60;
 
     let running = false;
 
     let interval;
 
-    const MOVE_SPEED = 2; // how fast buildings move left/right
     const moveKeys = {
         right: false,
         left: false
@@ -100,7 +99,13 @@ function main() {
     });
     // return;
 
-    let leftright_track = 0;
+    let x_velocity = 0;
+    const X_VELOCITY_CAP = 2;
+    const ACCELERATION = 0.5; // how fast buildings move left/right
+    const DECCELERATION = 0.1;
+    let ship_x = 0;
+    const X_BOUNDS = 0.5 * (row_count-1) * building_width;
+
     // GAME LOOP
     document.addEventListener("click", ()=> {
         if (!running) {
@@ -111,27 +116,52 @@ function main() {
                 let closest_z = buildings.rows[0][row_length - 1].world_pos.z;
 
                 // move buildings towards user
-                if (closest_z < Z_CLIP) {
-                    buildings.move(0, 0, BUILDING_SPEED);
-                } else {
+                buildings.move(0, 0, BUILDING_SPEED);
+                if (closest_z > Z_CLIP) {
                     buildings.advanceColumn();
                 }
 
                 // move left and right
-                if (moveKeys.right) {
-                    buildings.move(-MOVE_SPEED, 0, 0);
-                    leftright_track -= MOVE_SPEED;
 
-                    if (leftright_track < -building_width) {
-                        // buildings.
-                    }
+                // if (moveKeys.right && x_velocity > -X_VELOCITY_CAP) {
+                //     x_velocity -= ACCELERATION;
+                // }
+                // if (moveKeys.left && x_velocity < X_VELOCITY_CAP) {
+                //     x_velocity += ACCELERATION;
+
+                // }
+                // if (!moveKeys.right && !moveKeys.left) {
+                //     if (x_velocity > 0) {
+                //         x_velocity -= DECCELERATION;
+                //     } else {
+                //         x_velocity += DECCELERATION;
+                //     }
+                // }
+
+                if (moveKeys.right && ship_x > -X_BOUNDS) {
+                    // buildings.move(-X_VELOCITY_CAP, 0, 0);
+                    x_velocity = -X_VELOCITY_CAP
+                    buildings.move(x_velocity, 0, 0);
+                    ship_x += x_velocity
                 }
-                if (moveKeys.left) {
-                    buildings.move(MOVE_SPEED, 0, 0);
-                    leftright_track += MOVE_SPEED;
+                if (moveKeys.left && ship_x < X_BOUNDS) {
+                    // buildings.move(X_VELOCITY_CAP, 0, 0);
+                    x_velocity = X_VELOCITY_CAP;
+                    buildings.move(x_velocity, 0, 0);
+                    ship_x += x_velocity
                 }
+                // deccelerate
+                if (x_velocity > 0 && x_velocity != 0) {
+                    x_velocity -= DECCELERATION;
+                } else {
+                    x_velocity += DECCELERATION;
+                }
+                if (Math.abs(x_velocity) < 0.1) {
+                    x_velocity = 0;
+                }
+                console.log(ship_x)
+
                 
-
 
                 paintframe();
         
