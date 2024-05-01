@@ -6,9 +6,11 @@
 #canvas {
     border: 1px solid black;
 }
+/* stars https://cdn.mos.cms.futurecdn.net/BfemybeKVXCf9pgX9WCxsc-1200-80.jpg */
+/* pure black https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7N-Ujry4EObhJ6Fx5JNetyfYkO1rRPq2Fb0qUNZncMg&s */
 body {
-    background-image: url('https://cdna.artstation.com/p/assets/images/images/066/663/350/large/eric-guedes-deathstar-46-z1-qex.jpg?1693453141');
+    /* background-image: url('https://cdn.mos.cms.futurecdn.net/BfemybeKVXCf9pgX9WCxsc-1200-80.jpg'); */
     background-repeat: no-repeat;
     background-attachment: fixed;
-    /* background-size: cover; */
+    background-size: cover;
 }
