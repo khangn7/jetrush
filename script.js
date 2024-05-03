@@ -10,11 +10,13 @@ when displaying a 3d vector, we'll only use it's x and y values
 
 import { 
     blockOfBuildings,
+    makeShip,
 } from "./lib/game.js"
+import { SHIP_COLOR } from "./lib/settings.js";
 
 const Z_CLIP = -100;
 
-function main() {
+async function main() {
 
     // set up canvas
     const canvas_elem = document.querySelector("#canvas");
@@ -28,13 +30,15 @@ function main() {
         canvas_elem.height--;
     }
 
-    const map_y = -87;
+    const map_y = -107;
 
+    const ship = makeShip(canvas_elem, 0.5);
+    const ship_y = -70;
+    ship.worldspace_position_set(0, ship_y, -250);
 
-
-    const BUILDING_SPEED = 10; // how fast buildings move towards user
+    const BUILDING_SPEED = 15; // how fast buildings move towards user
     const block_x_center = 0;
-    const start_z = -1800; // furthest building z
+    const start_z = -1200; // furthest building z
     const building_width = 60;
     const building_height = 300; // max
     const row_length = 20;
@@ -58,7 +62,9 @@ function main() {
         clearCanvas(canvas_elem);
 
         // draw buildings
-        buildings.draw() ;
+        buildings.draw();
+
+        ship.draw_surfaces(SHIP_COLOR);
 
     };
     paintframe();
@@ -101,10 +107,14 @@ function main() {
 
     let x_velocity = 0;
     const X_VELOCITY_CAP = 2;
-    const ACCELERATION = 0.5; // how fast buildings move left/right
     const DECCELERATION = 0.1;
     let ship_x = 0;
     const X_BOUNDS = 0.5 * (row_count-1) * building_width;
+
+    const THETA_MAX = Math.PI * 0.1;
+    let theta = 0;
+    const theta_accel = 0.1;
+    const theta_deccel = 0.1;
 
     // GAME LOOP
     document.addEventListener("click", ()=> {
@@ -121,45 +131,55 @@ function main() {
                     buildings.advanceColumn();
                 }
 
-                // move left and right
-
-                // if (moveKeys.right && x_velocity > -X_VELOCITY_CAP) {
-                //     x_velocity -= ACCELERATION;
-                // }
-                // if (moveKeys.left && x_velocity < X_VELOCITY_CAP) {
-                //     x_velocity += ACCELERATION;
-
-                // }
-                // if (!moveKeys.right && !moveKeys.left) {
-                //     if (x_velocity > 0) {
-                //         x_velocity -= DECCELERATION;
-                //     } else {
-                //         x_velocity += DECCELERATION;
-                //     }
-                // }
-
+                // move buildings left/right and rotate ship
                 if (moveKeys.right && ship_x > -X_BOUNDS) {
-                    // buildings.move(-X_VELOCITY_CAP, 0, 0);
                     x_velocity = -X_VELOCITY_CAP
                     buildings.move(x_velocity, 0, 0);
                     ship_x += x_velocity
+
+                    if (theta > -THETA_MAX) {
+                        theta -= theta_accel;
+                        ship.rotate_xyz(theta, 2);
+                    }
+
                 }
                 if (moveKeys.left && ship_x < X_BOUNDS) {
-                    // buildings.move(X_VELOCITY_CAP, 0, 0);
                     x_velocity = X_VELOCITY_CAP;
                     buildings.move(x_velocity, 0, 0);
                     ship_x += x_velocity
+
+                    if (theta < THETA_MAX) {
+                        theta += theta_accel;
+                        ship.rotate_xyz(theta, 2);
+                    }
+
                 }
-                // deccelerate
-                if (x_velocity > 0 && x_velocity != 0) {
+
+                // deccelerate and unrotate ship
+                if (x_velocity > 0) {
                     x_velocity -= DECCELERATION;
-                } else {
+
+                    if (theta > 0 && !moveKeys.left) {
+                        theta -= theta_deccel;
+                        ship.rotate_xyz(theta, 2);
+                    }
+
+                } else if (x_velocity < 0) {
                     x_velocity += DECCELERATION;
+
+                    if (theta < 0 && !moveKeys.right) {
+                        theta += theta_deccel;
+                        ship.rotate_xyz(theta, 2);
+                    }
+
                 }
                 if (Math.abs(x_velocity) < 0.1) {
                     x_velocity = 0;
                 }
-                console.log(ship_x)
+                if (Math.abs(theta) < 0.1) {
+                    theta = 0;
+                    ship.rotate_xyz(theta, 1);
+                }
 
                 
 
@@ -180,32 +200,10 @@ function main() {
 
 main();
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-
-
-
-// function make_grid(canvas_elem) {
-//     let x_square_count = 10;
-//     let z_square_count = 10;
-
-//     // _points=false, x_range, z_range, y, x_square_count, z_square_count
-//     const grid_coords = new Grid_coords(false, 100, 10000, -100, x_square_count, z_square_count);
-
-//     const grid = new GridShape(
-//         canvas_elem,
-//         grid_coords.points, 
-//         grid_coords.lines,
-//         Grid_coords,
-//         true,// dont_hardcopy. here this is used so references in s_lines can be used.
-//              // as in, so we only need to change values of s_points and s_lines values point to them
-//         {
-//             x_square_count: x_square_count,
-//             z_square_count: z_square_count
-//         }
-//     );
-
-//     return grid;
-// }
 
 function clearCanvas(canvas) {
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
