@@ -32,8 +32,8 @@ async function main() {
 
     const map_y = -80;
 
-    const ship = makeShip(canvas_elem, 0.5);
-    const ship_y = -60;
+    const ship = makeShip(canvas_elem, 0.8);
+    const ship_y = 0;
     ship.worldspace_position_set(0, ship_y, -250);
 
     const BUILDING_SPEED = 8; // how fast buildings move towards user
@@ -62,7 +62,7 @@ async function main() {
         clearCanvas(canvas_elem);
 
         // draw buildings
-        buildings.draw();
+        // buildings.draw();
 
         ship.draw_surfaces();
 
@@ -123,13 +123,13 @@ async function main() {
             running = true
             interval = setInterval(() => {
 
-                // theta += 0.01;
-                // ship.rotate_xyz(1, 0);
-                // ship.rotate_xyz(theta, 1, true);
+                theta += 0.01;
+                ship.rotate_xyz(1, 0);
+                ship.rotate_xyz(theta, 1, true);
 
-                // paintframe();
+                paintframe();
 
-                // return;
+                return;
 
                 let row_length = buildings.rows[0].length;
                 let closest_z = buildings.rows[0][row_length - 1].world_pos.z;
