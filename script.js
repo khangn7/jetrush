@@ -33,7 +33,7 @@ async function main() {
     const map_y = -80;
 
     const ship = makeShip(canvas_elem, 0.5);
-    const ship_y = 0;
+    const ship_y = -60;
     ship.worldspace_position_set(0, ship_y, -250);
 
     const BUILDING_SPEED = 8; // how fast buildings move towards user
@@ -62,7 +62,7 @@ async function main() {
         clearCanvas(canvas_elem);
 
         // draw buildings
-        // buildings.draw();
+        buildings.draw();
 
         ship.draw_surfaces();
 
@@ -108,13 +108,14 @@ async function main() {
     let x_velocity = 0;
     const X_VELOCITY_CAP = 2;
     const DECCELERATION = 0.1;
-    let ship_x = 0;
-    const X_BOUNDS = 0.5 * (row_count-1) * building_width;
+    let move_x = 0;
+    const X_BOUNDS_RIGHT = -0.5 * (row_count - 1.5) * building_width;
+    const X_BOUNDS_LEFT = 0.5 * (row_count) * building_width;
 
     const THETA_MAX = Math.PI * 0.1;
     let theta = 0;
-    const theta_accel = 0.1;
-    const theta_deccel = 0.02;
+    const theta_accel = 0.15;
+    const theta_deccel = 0.1;
 
     // GAME LOOP
     document.addEventListener("click", ()=> {
@@ -122,28 +123,28 @@ async function main() {
             running = true
             interval = setInterval(() => {
 
-                theta += 0.01;
-                ship.rotate_xyz(1, 0);
-                ship.rotate_xyz(theta, 1, true);
+                // theta += 0.01;
+                // ship.rotate_xyz(1, 0);
+                // ship.rotate_xyz(theta, 1, true);
 
-                paintframe();
+                // paintframe();
 
-                return;
+                // return;
 
                 let row_length = buildings.rows[0].length;
                 let closest_z = buildings.rows[0][row_length - 1].world_pos.z;
 
                 // move buildings towards user
-                // buildings.move(0, 0, BUILDING_SPEED);
-                // if (closest_z > Z_CLIP) {
-                //     buildings.advanceColumn();
-                // }
+                buildings.move(0, 0, BUILDING_SPEED);
+                if (closest_z > Z_CLIP) {
+                    buildings.advanceColumn();
+                }
 
                 // move buildings left/right and rotate ship
-                if (moveKeys.right && ship_x > -X_BOUNDS) {
+                if (moveKeys.right && move_x > X_BOUNDS_RIGHT) {
                     x_velocity = -X_VELOCITY_CAP
                     buildings.move(x_velocity, 0, 0);
-                    ship_x += x_velocity
+                    move_x += x_velocity
 
                     if (theta > -THETA_MAX) {
                         theta -= theta_accel;
@@ -151,10 +152,10 @@ async function main() {
                     }
 
                 }
-                if (moveKeys.left && ship_x < X_BOUNDS) {
+                if (moveKeys.left && move_x < X_BOUNDS_LEFT) { 
                     x_velocity = X_VELOCITY_CAP;
                     buildings.move(x_velocity, 0, 0);
-                    ship_x += x_velocity
+                    move_x += x_velocity
 
                     if (theta < THETA_MAX) {
                         theta += theta_accel;
