@@ -12,16 +12,16 @@ import {
     blockOfBuildings,
     makeShip,
 } from "./lib/game.js"
-import { SHIP_COLOR } from "./lib/settings.js";
+import { FADE_TO, SHIP_COLOR } from "./lib/settings.js";
 
-const Z_CLIP = -100;
+const Z_CLIP = -50;
 
 async function main() {
 
     // set up canvas
     const canvas_elem = document.querySelector("#canvas");
-    canvas_elem.width = window.innerWidth * 0.99; // 0.99 is to fit screen
-    canvas_elem.height = window.innerHeight * 0.99;
+    canvas_elem.width = window.innerWidth * 1; // 0.99 is to fit screen
+    canvas_elem.height = window.innerHeight * 1;
     // have to be odd numbers, explained above
     if (canvas_elem.width % 2 == 0) {
         canvas_elem.width--;
@@ -30,13 +30,21 @@ async function main() {
         canvas_elem.height--;
     }
 
-    const map_y = -150;
+    const ctx = canvas.getContext("2d");
+    
+    const background = () => {
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(" + FADE_TO.join(",") + ",1)";
+        ctx.fillRect(0, 0, canvas_elem.width, canvas_elem.height);
+    }
 
-    const ship = makeShip(canvas_elem, 0.5);
-    const ship_y = -40;
-    ship.worldspace_position_set(0, ship_y, -350);
+    const map_y = -100;
 
-    const BUILDING_SPEED = 10; // how fast buildings move towards user
+    const ship = makeShip(canvas_elem, 0.7);
+    const ship_y = -60;
+    ship.worldspace_position_set(0, ship_y, -500);
+
+    const BUILDING_SPEED = 20; // how fast buildings move towards user
     const block_x_center = 0;
     const building_width = 60;
     const building_height = 300; // max
@@ -61,6 +69,8 @@ async function main() {
     
     const paintframe = () => {
         clearCanvas(canvas_elem);
+
+        background();
 
         // draw buildings
         buildings.draw();
