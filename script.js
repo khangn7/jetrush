@@ -32,7 +32,7 @@ async function main() {
 
     const map_y = -80;
 
-    const ship = makeShip(canvas_elem, 0.8);
+    const ship = makeShip(canvas_elem, 2);
     const ship_y = 0;
     ship.worldspace_position_set(0, ship_y, -250);
 
