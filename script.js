@@ -44,7 +44,7 @@ async function main() {
     const ship_y = -60;
     ship.worldspace_position_set(0, ship_y, -500);
 
-    const BUILDING_SPEED = 20; // how fast buildings move towards user
+    const BUILDING_SPEED = 15; // how fast buildings move towards user
     const block_x_center = 0;
     const building_width = 60;
     const building_height = 300; // max
