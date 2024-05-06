@@ -30,19 +30,20 @@ async function main() {
         canvas_elem.height--;
     }
 
-    const map_y = -80;
+    const map_y = -150;
 
     const ship = makeShip(canvas_elem, 0.5);
-    const ship_y = -60;
-    ship.worldspace_position_set(0, ship_y, -250);
+    const ship_y = -40;
+    ship.worldspace_position_set(0, ship_y, -350);
 
-    const BUILDING_SPEED = 8; // how fast buildings move towards user
+    const BUILDING_SPEED = 10; // how fast buildings move towards user
     const block_x_center = 0;
-    const start_z = -600; // furthest building z
     const building_width = 60;
     const building_height = 300; // max
-    const row_length = 10;
+    const row_length = 20;
     const row_count = 10;
+
+    const start_z = -row_length * building_width; // furthest building z
 
 
     const buildings = new blockOfBuildings(
@@ -124,7 +125,7 @@ async function main() {
             interval = setInterval(() => {
 
                 // theta += 0.01;
-                // ship.rotate_xyz(1, 0);
+                // ship.rotate_xyz(1, 0);a
                 // ship.rotate_xyz(theta, 1, true);
 
                 // paintframe();
@@ -187,7 +188,7 @@ async function main() {
                 }
                 if (Math.abs(theta) < 0.1) {
                     theta = 0;
-                    ship.rotate_xyz(theta, 1);
+                    ship.rotate_xyz(theta, 2);
                 }
 
                 
