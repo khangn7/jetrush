@@ -32,7 +32,7 @@ async function main() {
 
     const map_y = -80;
 
-    const ship = makeShip(canvas_elem, 0.8);
+    const ship = makeShip(canvas_elem, 0.5);
     const ship_y = 0;
     ship.worldspace_position_set(0, ship_y, -250);
 
@@ -123,10 +123,8 @@ async function main() {
             running = true
             interval = setInterval(() => {
 
-                theta += 0.01;
-                ship.rotate_xyz(1, 0);
-                ship.rotate_xyz(theta, 1, true);
-
+                theta += 0.06;
+                ship.rotate_around_vector(theta, 2.4, -0.5);
                 paintframe();
 
                 return;
