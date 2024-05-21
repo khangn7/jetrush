@@ -123,10 +123,8 @@ async function main() {
             running = true
             interval = setInterval(() => {
 
-                theta += 0.01;
-                ship.rotate_xyz(1, 0);
-                ship.rotate_xyz(theta, 1, true);
-
+                theta += 0.06;
+                ship.rotate_around_vector(theta, 2.4, -0.5);
                 paintframe();
 
                 return;
