@@ -49,7 +49,7 @@ async function main() {
     const building_width = 60;
     const building_height = 300; // max
     const row_length = 20;
-    const row_count = 10;
+    const row_count = 20;
 
     const start_z = -row_length * building_width; // furthest building z
 
